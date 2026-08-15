@@ -73,7 +73,7 @@ function App() {
       (pos) => {
         fetchWeather(pos.coords.latitude, pos.coords.longitude, 'Tu ubicación')
       },
-      () => fetchWeather(-34.6037, -58.3816, 'Buenos Aires, Argentina'),
+      () => fetchWeather(-33.4489, -70.6693, 'Santiago, Chile'),
     )
   }, [])
 
