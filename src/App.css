@@ -138,6 +138,11 @@ body {
 .results {
   display: grid;
   gap: clamp(16px, 3vw, 20px);
+  min-width: 0;
+}
+
+.results > * {
+  min-width: 0;
 }
 
 .card {
@@ -212,10 +217,13 @@ body {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 10px;
+  min-width: 0;
 }
 
 .card.hourly {
   padding: 20px;
+  width: 100%;
+  overflow: hidden;
 }
 
 .card.hourly h3 {
@@ -230,6 +238,9 @@ body {
   overflow-x: auto;
   padding-bottom: 8px;
   scrollbar-width: thin;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
 .hour {
@@ -274,6 +285,7 @@ body {
   align-items: center;
   padding: 16px 8px;
   text-align: center;
+  min-width: 0;
 }
 
 .card.day:hover {
@@ -313,9 +325,21 @@ body {
   margin-top: 16px;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 900px) {
+  .forecast {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
   .forecast {
     grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 400px) {
+  .forecast {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -330,5 +354,10 @@ body {
 
   .current .stats {
     gap: 10px;
+  }
+
+  .container {
+    padding-right: 12px;
+    padding-left: 12px;
   }
 }
