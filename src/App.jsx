@@ -84,16 +84,27 @@ function App() {
     )
   }, [])
 
+  async function searchCity(name) {
+    const res = await fetch(`${GEO_URL}?name=${encodeURIComponent(name)}&count=5&language=es`)
+    if (!res.ok) throw new Error('No se pudo buscar la ciudad.')
+    const data = await res.json()
+    const results = data.results || []
+    return results.find((r) => r.country_code === 'CL') || results[0]
+  }
+
   async function handleSearch(e) {
     e.preventDefault()
     if (!query.trim()) return
     setLoading(true)
     setError('')
     try {
-      const res = await fetch(`${GEO_URL}?name=${encodeURIComponent(query)}&count=1&language=es`)
-      if (!res.ok) throw new Error('No se pudo buscar la ciudad.')
-      const data = await res.json()
-      const result = data.results && data.results[0]
+      let result = await searchCity(query)
+      if (!result) {
+        const baseName = query.trim().split(/[,\s]+/)[0]
+        if (baseName && baseName !== query.trim()) {
+          result = await searchCity(baseName)
+        }
+      }
       if (!result) {
         throw new Error('No se encontró ninguna ciudad con ese nombre.')
       }
