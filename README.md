@@ -1,16 +1,37 @@
-# React + Vite
+# ⛅ Mi Clima
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Aplicación web de clima que muestra el tiempo actual y el pronóstico de 7 días. Permite buscar cualquier ciudad del mundo y usa tu ubicación automáticamente si lo autorizas.
 
-Currently, two official plugins are available:
+## Características
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- 🌍 Búsqueda de ciudades por nombre (geocodificación en español)
+- 📍 Geolocalización automática al abrir la app (con respaldo a Buenos Aires)
+- ⛅ Clima actual: temperatura, descripción, humedad y viento
+- 📅 Pronóstico de 7 días con temperatura máxima y mínima
+- 🇪🇸 Interfaz y datos totalmente en español
 
-## React Compiler
+## Tecnologías
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- [React](https://react.dev) + [Vite](https://vite.dev)
+- [Open-Meteo](https://open-meteo.com) (geocodificación y pronóstico, sin API key)
+- [Oxlint](https://oxc.rs) para linting
 
-## Expanding the Oxlint configuration
+## Cómo ejecutar
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```bash
+npm install
+npm run dev
+```
+
+## Scripts
+
+| Comando          | Descripción                     |
+| ---------------- | ------------------------------- |
+| `npm run dev`    | Inicia el servidor de desarrollo |
+| `npm run build`  | Compila la app para producción  |
+| `npm run preview`| Previsualiza la compilación     |
+| `npm run lint`   | Ejecuta Oxlint                  |
+
+## Despliegue
+
+Puedes publicar la app como un sitio estático en [GitHub Pages](https://pages.github.com), [Vercel](https://vercel.com) o [Netlify](https://www.netlify.com), ya que solo necesita una carpeta estática (`dist`).
