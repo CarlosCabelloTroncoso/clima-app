@@ -105,7 +105,10 @@ function App() {
 
   return (
     <div className="container">
-      <h1>⛅ Mi Clima</h1>
+      <div className="header">
+        <h1>⛅ Mi Clima</h1>
+        <p>Consulta el tiempo actual y el pronóstico para cualquier ciudad.</p>
+      </div>
 
       <form onSubmit={handleSearch} className="search">
         <input
@@ -127,11 +130,15 @@ function App() {
             <h2>{location}</h2>
             <div className="big-emoji">{weatherInfo(current.weather_code).emoji}</div>
             <div className="temp">{Math.round(current.temperature_2m)}°C</div>
-            <p>{weatherInfo(current.weather_code).label}</p>
-            <p className="muted">
-              Viento: {Math.round(current.wind_speed_10m)} km/h · Humedad:{' '}
-              {current.relative_humidity_2m}%
-            </p>
+            <p className="condition">{weatherInfo(current.weather_code).label}</p>
+            <div className="stats">
+              <span className="stat">
+                💨 <strong>{Math.round(current.wind_speed_10m)}</strong> km/h
+              </span>
+              <span className="stat">
+                💧 <strong>{current.relative_humidity_2m}%</strong> humedad
+              </span>
+            </div>
           </div>
 
           <div className="forecast">
@@ -144,8 +151,8 @@ function App() {
                   </span>
                   <span className="day-emoji">{info.emoji}</span>
                   <span className="day-temp">
-                    {Math.round(daily.temperature_2m_max[i])}° /{' '}
-                    {Math.round(daily.temperature_2m_min[i])}°
+                    <strong>{Math.round(daily.temperature_2m_max[i])}°</strong>{' '}
+                    <span>{Math.round(daily.temperature_2m_min[i])}°</span>
                   </span>
                 </div>
               )
