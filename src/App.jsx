@@ -60,6 +60,7 @@ function App() {
       const res = await fetch(
         `${FORECAST_URL}?latitude=${latitude}&longitude=${longitude}` +
           `&current=temperature_2m,relative_humidity_2m,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min` +
+          `&hourly=temperature_2m,weather_code,precipitation_probability` +
           `&timezone=auto&forecast_days=7`,
       )
       if (!res.ok) throw new Error('No se pudo obtener el clima.')
@@ -120,6 +121,22 @@ function App() {
 
   const current = weather?.current
   const daily = weather?.daily
+  const hourly = weather?.hourly
+
+  const hourlyNow = hourly
+    ? hourly.time
+        .filter((t) => new Date(t) >= new Date())
+        .slice(0, 24)
+        .map((t) => {
+          const i = hourly.time.indexOf(t)
+          return {
+            time: t,
+            temp: Math.round(hourly.temperature_2m[i]),
+            code: hourly.weather_code[i],
+            rain: hourly.precipitation_probability[i],
+          }
+        })
+    : []
 
   return (
     <div className="container">
@@ -156,6 +173,28 @@ function App() {
               <span className="stat">
                 💧 <strong>{current.relative_humidity_2m}%</strong> humedad
               </span>
+            </div>
+          </div>
+
+          <div className="card hourly">
+            <h3>Próximas 24 horas</h3>
+            <div className="hourly-row">
+              {hourlyNow.map((h) => {
+                const info = weatherInfo(h.code)
+                return (
+                  <div className="hour" key={h.time}>
+                    <span className="hour-time">
+                      {new Date(h.time).toLocaleTimeString('es-ES', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                    <span className="hour-emoji">{info.emoji}</span>
+                    <span className="hour-temp">{h.temp}°</span>
+                    <span className="hour-rain">{h.rain > 0 ? `${h.rain}%` : ''}</span>
+                  </div>
+                )
+              })}
             </div>
           </div>
 

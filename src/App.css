@@ -214,6 +214,59 @@ body {
   gap: 10px;
 }
 
+.card.hourly {
+  padding: 20px;
+}
+
+.card.hourly h3 {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.hourly-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+}
+
+.hour {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  padding: 12px 10px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  min-width: 64px;
+}
+
+.hour-time {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.hour-emoji {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.hour-temp {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.hour-rain {
+  font-size: 12px;
+  color: var(--accent);
+  min-height: 15px;
+}
+
 .card.day {
   display: flex;
   flex-direction: column;
