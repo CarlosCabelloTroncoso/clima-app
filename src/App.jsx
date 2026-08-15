@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
+import { version } from '../package.json'
 
 const GEO_URL = 'https://geocoding-api.open-meteo.com/v1/search'
 const FORECAST_URL = 'https://api.open-meteo.com/v1/forecast'
@@ -221,6 +222,8 @@ function App() {
       {!current && !loading && !error && (
         <p className="hint">Escribe el nombre de una ciudad para ver su clima.</p>
       )}
+
+      <footer className="footer">Mi Clima · v{version}</footer>
     </div>
   )
 }

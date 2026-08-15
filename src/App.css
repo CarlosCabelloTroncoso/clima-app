@@ -325,6 +325,13 @@ body {
   margin-top: 16px;
 }
 
+.footer {
+  margin-top: 40px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
 @media (max-width: 900px) {
   .forecast {
     grid-template-columns: repeat(4, 1fr);
