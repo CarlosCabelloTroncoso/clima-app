@@ -128,13 +128,9 @@ function App() {
   return (
     <div className="container">
       <div className="header">
-        <div className="header-row">
-          <div>
-            <h1>⛅ Mi Clima</h1>
-            <p>Consulta el tiempo actual y el pronóstico para cualquier ciudad.</p>
-          </div>
-          <ThemeToggle theme={theme} onThemeChange={setTheme} />
-        </div>
+        <ThemeToggle theme={theme} onThemeChange={setTheme} />
+        <h1>⛅ Mi Clima</h1>
+        <p>Consulta el tiempo actual y el pronóstico para cualquier ciudad.</p>
       </div>
 
       <SearchBar query={query} onQueryChange={setQuery} onSubmit={handleSearch} loading={loading} />

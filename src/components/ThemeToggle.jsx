@@ -1,24 +1,16 @@
-// Selector de tema con tres opciones: claro, oscuro y automático.
+// Botón que alterna entre tema claro y oscuro. El modo automático se mantiene
+// internamente como valor por defecto al primer clic.
 function ThemeToggle({ theme, onThemeChange }) {
-  const options = [
-    { value: 'light', label: '☀️ Claro' },
-    { value: 'dark', label: '🌙 Oscuro' },
-    { value: 'auto', label: '🖥️ Auto' },
-  ]
+  const isDark = theme === 'dark'
   return (
-    <div className="theme-toggle" role="group" aria-label="Tema de la interfaz">
-      {options.map((opt) => (
-        <button
-          key={opt.value}
-          type="button"
-          className={theme === opt.value ? 'active' : ''}
-          onClick={() => onThemeChange(opt.value)}
-          aria-pressed={theme === opt.value}
-        >
-          {opt.label}
-        </button>
-      ))}
-    </div>
+    <button
+      type="button"
+      className="theme-toggle"
+      onClick={() => onThemeChange(isDark ? 'light' : 'dark')}
+      aria-label={isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
+    >
+      {isDark ? '☀️ Claro' : '🌙 Oscuro'}
+    </button>
   )
 }
 

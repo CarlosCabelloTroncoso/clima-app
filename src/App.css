@@ -99,14 +99,8 @@ body {
 
 .header {
   margin-bottom: clamp(24px, 4vw, 36px);
-}
-
-.header-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
+  text-align: center;
+  position: relative;
 }
 
 .header h1 {
@@ -114,39 +108,33 @@ body {
   font-weight: 700;
   letter-spacing: -0.5px;
   margin-bottom: 6px;
-  text-align: center;
 }
 
 .header p {
   color: var(--muted);
   font-size: 15px;
-  text-align: center;
+  display: none;
 }
 
 .theme-toggle {
-  display: flex;
-  gap: 6px;
-  background: var(--surface);
+  position: absolute;
+  top: 0;
+  right: 0;
   border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  padding: 8px 14px;
   border-radius: 12px;
-  padding: 4px;
-  box-shadow: var(--shadow-sm);
-}
-
-.theme-toggle button {
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.theme-toggle button.active {
-  background: var(--accent-soft);
-  color: var(--accent);
+  font-size: 14px;
   font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .search {
@@ -555,6 +543,12 @@ body {
 @media (max-width: 400px) {
   .forecast {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .header p {
+    display: block;
   }
 }
 
