@@ -47,9 +47,6 @@ function App() {
   // Evita que la geolocalización se dispare dos veces en modo desarrollo,
   // donde React StrictMode re-ejecuta los efectos de montaje.
   const geoLoaded = useRef(false)
-  // Referencia estable a la función de carga para usarla en el efecto de montaje.
-  const loadWeatherRef = useRef(null)
-  loadWeatherRef.current = loadWeather
 
   const loadWeather = useCallback(async (city) => {
     setLoading(true)
@@ -69,6 +66,10 @@ function App() {
       setLoading(false)
     }
   }, [storage])
+
+  // Referencia estable a la función de carga para usarla en el efecto de montaje.
+  const loadWeatherRef = useRef(loadWeather)
+  loadWeatherRef.current = loadWeather
 
   useEffect(() => {
     if (geoLoaded.current) return
