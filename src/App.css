@@ -436,6 +436,7 @@ body {
   display: grid;
   gap: 8px;
   min-width: 0;
+  margin-bottom: clamp(16px, 3vw, 20px);
 }
 
 .alert {

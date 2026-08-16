@@ -155,6 +155,8 @@ function App() {
       />
       <History history={history} onSelect={loadWeather} onClear={handleClearHistory} />
 
+      {alerts.length > 0 && <WeatherAlerts alerts={alerts} />}
+
       {error && <p className="error">{error}</p>}
       {loading && <p className="loading">Cargando...</p>}
 
@@ -166,7 +168,6 @@ function App() {
             isFavorite={isFavorite}
             onToggleFavorite={handleToggleFavorite}
           />
-          {alerts.length > 0 && <WeatherAlerts alerts={alerts} />}
           {hourlyNow.length > 0 && <HourlyForecast hours={hourlyNow} />}
           {hourlyNow.length > 0 && dailyChart.length > 0 && (
             <WeatherChart hourly={hourlyNow} daily={dailyChart} />
