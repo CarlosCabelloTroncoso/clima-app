@@ -1,5 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { toggleFavorite, addHistory, readTheme, writeTheme, STORAGE_KEYS } from './storage'
+import {
+  toggleFavorite,
+  addHistory,
+  clearFavorites,
+  clearHistory,
+  readTheme,
+  writeTheme,
+  STORAGE_KEYS,
+} from './storage'
 
 // Almacenamiento simulado en memoria para aislar los tests.
 function createMemoryStorage() {
@@ -61,6 +69,27 @@ describe('addHistory', () => {
     const result = addHistory(storage, santiago)
     expect(result).toHaveLength(2)
     expect(result[0].id).toBe('1')
+  })
+})
+
+describe('clearFavorites / clearHistory', () => {
+  let storage
+  beforeEach(() => {
+    storage = createMemoryStorage()
+  })
+
+  it('vacía la lista de favoritos', () => {
+    toggleFavorite(storage, santiago)
+    const result = clearFavorites(storage)
+    expect(result).toEqual([])
+    expect(toggleFavorite(storage, santiago)).toHaveLength(1)
+  })
+
+  it('vacía el historial', () => {
+    addHistory(storage, santiago)
+    const result = clearHistory(storage)
+    expect(result).toEqual([])
+    expect(addHistory(storage, santiago)).toHaveLength(1)
   })
 })
 

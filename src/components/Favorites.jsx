@@ -1,9 +1,15 @@
-// Lista de ciudades favoritas, con un clic para volver a consultarlas.
-function Favorites({ favorites, onSelect, onRemove }) {
+// Lista de ciudades favoritas, con un clic para volver a consultarlas y la
+// opción de limpiarlas todas.
+function Favorites({ favorites, onSelect, onRemove, onClear }) {
   if (favorites.length === 0) return null
   return (
     <div className="panel">
-      <h3>Favoritos</h3>
+      <div className="panel-header">
+        <h3>Favoritos</h3>
+        <button type="button" className="clear" onClick={onClear}>
+          Limpiar
+        </button>
+      </div>
       <ul className="city-list">
         {favorites.map((city) => (
           <li key={city.id}>

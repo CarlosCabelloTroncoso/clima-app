@@ -46,6 +46,18 @@ export function addHistory(storage, city) {
   return next
 }
 
+// Vacía la lista de favoritos.
+export function clearFavorites(storage) {
+  writeJSON(storage, STORAGE_KEYS.favorites, [])
+  return []
+}
+
+// Vacía el historial de búsquedas.
+export function clearHistory(storage) {
+  writeJSON(storage, STORAGE_KEYS.history, [])
+  return []
+}
+
 // Lee el tema guardado, validando que sea uno de los valores permitidos.
 export function readTheme(storage) {
   const theme = readJSON(storage, STORAGE_KEYS.theme, 'auto')

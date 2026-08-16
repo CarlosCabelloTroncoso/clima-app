@@ -1,11 +1,13 @@
 import { useEffect, useState, useRef } from 'react'
 import './App.css'
 import { version } from '../package.json'
-import { fetchWeatherData, searchCity, buildHourly, buildDaily } from './lib/weather'
+import { fetchWeatherData, searchCity, buildHourly, buildDaily, buildAlerts } from './lib/weather'
 import {
   readJSON,
   toggleFavorite,
   addHistory,
+  clearFavorites,
+  clearHistory,
   STORAGE_KEYS,
 } from './lib/storage'
 import useTheme from './hooks/useTheme'
@@ -14,6 +16,7 @@ import CurrentWeather from './components/CurrentWeather'
 import HourlyForecast from './components/HourlyForecast'
 import DailyForecast from './components/DailyForecast'
 import WeatherChart from './components/WeatherChart'
+import WeatherAlerts from './components/WeatherAlerts'
 import ThemeToggle from './components/ThemeToggle'
 import Favorites from './components/Favorites'
 import History from './components/History'
@@ -119,10 +122,19 @@ function App() {
     setFavorites(favorites.filter((f) => f.id !== id))
   }
 
+  function handleClearFavorites() {
+    setFavorites(clearFavorites(storage))
+  }
+
+  function handleClearHistory() {
+    setHistory(clearHistory(storage))
+  }
+
   const current = weather?.current
   const daily = weather?.daily
   const hourlyNow = buildHourly(weather?.hourly)
   const dailyChart = buildDaily(weather?.daily)
+  const alerts = buildAlerts(weather?.hourly, weather?.daily)
   const isFavorite = favorites.some((f) => f.id === currentCity?.id)
 
   return (
@@ -139,8 +151,9 @@ function App() {
         favorites={favorites}
         onSelect={loadWeather}
         onRemove={handleRemoveFavorite}
+        onClear={handleClearFavorites}
       />
-      <History history={history} onSelect={loadWeather} />
+      <History history={history} onSelect={loadWeather} onClear={handleClearHistory} />
 
       {error && <p className="error">{error}</p>}
       {loading && <p className="loading">Cargando...</p>}
@@ -153,6 +166,7 @@ function App() {
             isFavorite={isFavorite}
             onToggleFavorite={handleToggleFavorite}
           />
+          {alerts.length > 0 && <WeatherAlerts alerts={alerts} />}
           {hourlyNow.length > 0 && <HourlyForecast hours={hourlyNow} />}
           {hourlyNow.length > 0 && dailyChart.length > 0 && (
             <WeatherChart hourly={hourlyNow} daily={dailyChart} />

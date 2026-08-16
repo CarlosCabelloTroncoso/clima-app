@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildHourly, searchCity } from './weather'
+import { buildHourly, buildAlerts, searchCity } from './weather'
 
 describe('buildHourly', () => {
   const hourly = {
@@ -75,5 +75,48 @@ describe('searchCity', () => {
     const result = await searchCity('talca chile', fetchFn)
     expect(calls).toHaveLength(2)
     expect(result.name).toBe('Talca')
+  })
+})
+
+describe('buildAlerts', () => {
+  const today = new Date().toISOString().slice(0, 10)
+  // Fechas futuras (después de hoy) para el pronóstico diario.
+  const day1 = new Date(Date.now() + 86400000).toISOString().slice(0, 10)
+  const day2 = new Date(Date.now() + 2 * 86400000).toISOString().slice(0, 10)
+
+  function makeDaily(codes, dates) {
+    return {
+      time: dates,
+      weather_code: codes,
+    }
+  }
+
+  it('no genera alertas si no hay lluvia', () => {
+    const daily = makeDaily([0, 0], [day1, day2])
+    expect(buildAlerts(null, daily)).toEqual([])
+  })
+
+  it('alerta sobre lluvia en las próximas horas de hoy', () => {
+    const hourly = {
+      time: [`${today}T10:00`, `${today}T11:00`],
+      weather_code: [0, 61],
+    }
+    const daily = makeDaily([0], [today])
+    const alerts = buildAlerts(hourly, daily)
+    expect(alerts.some((a) => a.tipo === 'hourly')).toBe(true)
+    expect(alerts[0].nivel).toBe('light')
+  })
+
+  it('marca lluvia fuerte para códigos severos', () => {
+    const daily = makeDaily([95], [day1])
+    const alerts = buildAlerts(null, daily)
+    expect(alerts[0].nivel).toBe('strong')
+    expect(alerts[0].texto).toContain('lluvia fuerte')
+  })
+
+  it('genera una alerta por cada día con lluvia', () => {
+    const daily = makeDaily([0, 61, 65], [today, day1, day2])
+    const alerts = buildAlerts(null, daily)
+    expect(alerts.filter((a) => a.tipo === 'daily')).toHaveLength(2)
   })
 })

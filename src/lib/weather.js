@@ -76,6 +76,60 @@ export function buildDaily(daily) {
   }))
 }
 
+// Clasifica un código WMO según la intensidad de precipitación.
+// Devuelve un nivel o null si no hay lluvia.
+function rainLevel(code) {
+  const heavy = new Set([57, 65, 67, 82, 86, 95, 96, 99])
+  const moderate = new Set([53, 55, 63, 80, 81])
+  const light = new Set([51, 56, 61, 66])
+  if (heavy.has(code)) return 'strong'
+  if (moderate.has(code)) return 'moderate'
+  if (light.has(code)) return 'light'
+  return null
+}
+
+// Genera las alertas meteorológicas a partir de los códigos de las próximas
+// horas y los próximos días. Devuelve un arreglo de { nivel, tipo, texto }.
+export function buildAlerts(hourly, daily) {
+  const alerts = []
+  const levels = { light: 'lluvia', moderate: 'lluvia', strong: 'lluvia fuerte' }
+
+  const today = new Date().toISOString().slice(0, 10)
+
+  // Revisa las próximas 24 horas en busca de precipitación.
+  if (hourly) {
+    const codes = []
+    for (let i = 0; i < hourly.time.length; i += 1) {
+      const date = hourly.time[i].slice(0, 10)
+      if (date === today) codes.push(hourly.weather_code[i])
+    }
+    const level = codes.map(rainLevel).filter(Boolean).sort((a, b) => levelOrder(a) - levelOrder(b))[0]
+    if (level) alerts.push({ nivel: level, tipo: 'hourly', texto: `Hoy hay ${levels[level]} en las próximas horas.` })
+  }
+
+  // Revisa los próximos días (excluye hoy) en busca de precipitación.
+  if (daily) {
+    for (let i = 0; i < daily.time.length; i += 1) {
+      if (daily.time[i] === today) continue
+      const level = rainLevel(daily.weather_code[i])
+      if (level) {
+        const day = formatDate(daily.time[i]).split(',')[0]
+        alerts.push({
+          nivel: level,
+          tipo: 'daily',
+          texto: `${levels[level]} esperada el ${day}.`,
+        })
+      }
+    }
+  }
+
+  return alerts
+}
+
+function levelOrder(level) {
+  return level === 'strong' ? 0 : level === 'moderate' ? 1 : 2
+}
+
 // Solicita el pronóstico a Open-Meteo y devuelve la respuesta JSON.
 export async function fetchWeatherData(latitude, longitude) {
   const res = await fetch(
