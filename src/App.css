@@ -432,11 +432,38 @@ body {
   color: var(--danger);
 }
 
-.alerts {
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  max-width: 420px;
+  width: 100%;
+  padding: 24px;
+  animation: popIn 0.2s ease;
+}
+
+.modal h3 {
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.modal-alerts {
   display: grid;
   gap: 8px;
-  min-width: 0;
-  margin-bottom: clamp(16px, 3vw, 20px);
 }
 
 .alert {
@@ -464,6 +491,33 @@ body {
 
 .alert-icon {
   font-size: 18px;
+}
+
+.modal-hint {
+  margin: 16px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .city-list {

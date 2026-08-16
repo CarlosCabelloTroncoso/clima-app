@@ -39,6 +39,7 @@ function App() {
 
   const [favorites, setFavorites] = useState(() => readJSON(storage, STORAGE_KEYS.favorites, []))
   const [history, setHistory] = useState(() => readJSON(storage, STORAGE_KEYS.history, []))
+  const [showAlerts, setShowAlerts] = useState(false)
 
   // Evita que la geolocalización se dispare dos veces en modo desarrollo,
   // donde React StrictMode re-ejecuta los efectos de montaje.
@@ -137,6 +138,11 @@ function App() {
   const alerts = buildAlerts(weather?.hourly, weather?.daily)
   const isFavorite = favorites.some((f) => f.id === currentCity?.id)
 
+  // Abre el modal de alertas cada vez que se cargan datos nuevos con alertas.
+  useEffect(() => {
+    setShowAlerts(alerts.length > 0)
+  }, [alerts.length])
+
   return (
     <div className="container">
       <div className="header">
@@ -154,8 +160,6 @@ function App() {
         onClear={handleClearFavorites}
       />
       <History history={history} onSelect={loadWeather} onClear={handleClearHistory} />
-
-      {alerts.length > 0 && <WeatherAlerts alerts={alerts} />}
 
       {error && <p className="error">{error}</p>}
       {loading && <p className="loading">Cargando...</p>}
@@ -181,6 +185,10 @@ function App() {
       )}
 
       <footer className="footer">Mi Clima · v{version}</footer>
+
+      {showAlerts && alerts.length > 0 && (
+        <WeatherAlerts alerts={alerts} onClose={() => setShowAlerts(false)} />
+      )}
     </div>
   )
 }
