@@ -66,6 +66,16 @@ export function buildHourly(hourly, limit = 24, now = new Date()) {
     })
 }
 
+// Construye la serie diaria para el gráfico de temperatura máxima/mínima.
+export function buildDaily(daily) {
+  if (!daily) return []
+  return daily.time.map((date, i) => ({
+    day: formatDate(date).split(',')[0],
+    max: Math.round(daily.temperature_2m_max[i]),
+    min: Math.round(daily.temperature_2m_min[i]),
+  }))
+}
+
 // Solicita el pronóstico a Open-Meteo y devuelve la respuesta JSON.
 export async function fetchWeatherData(latitude, longitude) {
   const res = await fetch(

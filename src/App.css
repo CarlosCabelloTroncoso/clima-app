@@ -35,6 +35,51 @@
   }
 }
 
+/* Tema claro y oscuro seleccionados manualmente, con preferencia sobre auto. */
+:root.theme-light {
+  color-scheme: light;
+}
+
+:root.theme-dark {
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root.theme-light {
+    --bg: #eef2f7;
+    --bg-grad-1: #e8edf5;
+    --bg-grad-2: #dbe3ee;
+    --surface: #ffffff;
+    --surface-2: #f6f8fb;
+    --border: #e3e8ef;
+    --text: #1c2533;
+    --muted: #64748b;
+    --accent: #2563eb;
+    --accent-2: #4f46e5;
+    --accent-soft: #eff4ff;
+    --danger: #dc2626;
+    --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+    --shadow-md: 0 8px 24px rgba(16, 24, 40, 0.08);
+  }
+}
+
+:root.theme-dark {
+  --bg: #0b1220;
+  --bg-grad-1: #0e1626;
+  --bg-grad-2: #141d31;
+  --surface: #111a2e;
+  --surface-2: #172138;
+  --border: #22304a;
+  --text: #e6edf7;
+  --muted: #94a3b8;
+  --accent: #60a5fa;
+  --accent-2: #818cf8;
+  --accent-soft: rgba(37, 99, 235, 0.15);
+  --danger: #f87171;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
 body {
   background: var(--bg);
   color: var(--text);
@@ -53,8 +98,15 @@ body {
 }
 
 .header {
-  text-align: center;
   margin-bottom: clamp(24px, 4vw, 36px);
+}
+
+.header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .header h1 {
@@ -62,11 +114,39 @@ body {
   font-weight: 700;
   letter-spacing: -0.5px;
   margin-bottom: 6px;
+  text-align: center;
 }
 
 .header p {
   color: var(--muted);
   font-size: 15px;
+  text-align: center;
+}
+
+.theme-toggle {
+  display: flex;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  box-shadow: var(--shadow-sm);
+}
+
+.theme-toggle button {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.theme-toggle button.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
 }
 
 .search {
@@ -323,6 +403,134 @@ body {
   color: var(--muted);
   text-align: center;
   margin-top: 16px;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  min-width: 0;
+}
+
+.panel h3 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.city-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.city-list li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.city-name {
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.city-name:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.city-list .remove {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.current-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.fav {
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--muted);
+  transition: color 0.15s, transform 0.15s;
+}
+
+.fav:hover {
+  transform: scale(1.1);
+}
+
+.fav.active {
+  color: #f59e0b;
+}
+
+.card.chart {
+  padding: 20px;
+  min-width: 0;
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.chart-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.chart-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.chart-tabs button {
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--muted);
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.chart-tabs button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.chart-body {
+  width: 100%;
+  min-width: 0;
 }
 
 .footer {
