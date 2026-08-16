@@ -1,5 +1,6 @@
-// Botón que alterna entre tema claro y oscuro. El modo automático se mantiene
-// internamente como valor por defecto al primer clic.
+import { memo } from 'react'
+
+// Botón que alterna entre tema claro y oscuro. Muestra el estado actual.
 function ThemeToggle({ theme, onThemeChange }) {
   const isDark = theme === 'dark'
   return (
@@ -14,4 +15,4 @@ function ThemeToggle({ theme, onThemeChange }) {
   )
 }
 
-export default ThemeToggle
+export default memo(ThemeToggle)

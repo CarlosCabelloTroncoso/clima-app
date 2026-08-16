@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { weatherInfo, formatDate } from '../lib/weather'
 
 // Pronóstico diario de 7 días con temperatura máxima y mínima.
@@ -21,4 +22,4 @@ function DailyForecast({ daily }) {
   )
 }
 
-export default DailyForecast
+export default memo(DailyForecast)

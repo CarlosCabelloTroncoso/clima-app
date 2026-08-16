@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { weatherInfo } from '../lib/weather'
 
 // Pronóstico por hora en fila horizontal con scroll.
@@ -27,4 +28,4 @@ function HourlyForecast({ hours }) {
   )
 }
 
-export default HourlyForecast
+export default memo(HourlyForecast)

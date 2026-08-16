@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 // Modal de alertas meteorológicas. Aparece superpuesto sobre la página al
 // cargar y se cierra al hacer clic en cualquier parte de la pantalla.
 function WeatherAlerts({ alerts, onClose }) {
@@ -20,4 +22,4 @@ function WeatherAlerts({ alerts, onClose }) {
   )
 }
 
-export default WeatherAlerts
+export default memo(WeatherAlerts)

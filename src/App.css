@@ -88,7 +88,7 @@ body {
     radial-gradient(1200px 600px at 100% -10%, var(--bg-grad-1), transparent),
     radial-gradient(900px 500px at -10% 110%, var(--bg-grad-2), transparent);
   background-repeat: no-repeat;
-  background-attachment: fixed;
+  background-attachment: scroll;
 }
 
 .container {

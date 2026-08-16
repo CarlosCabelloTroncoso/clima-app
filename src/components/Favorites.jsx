@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 // Lista de ciudades favoritas, con un clic para volver a consultarlas y la
 // opción de limpiarlas todas.
 function Favorites({ favorites, onSelect, onRemove, onClear }) {
@@ -26,4 +28,4 @@ function Favorites({ favorites, onSelect, onRemove, onClear }) {
   )
 }
 
-export default Favorites
+export default memo(Favorites)

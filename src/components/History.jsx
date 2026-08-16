@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 // Historial de ciudades consultadas recientemente, con opción de limpiarlo.
 function History({ history, onSelect, onClear }) {
   if (history.length === 0) return null
@@ -22,4 +24,4 @@ function History({ history, onSelect, onClear }) {
   )
 }
 
-export default History
+export default memo(History)

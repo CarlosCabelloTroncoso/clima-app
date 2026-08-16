@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo, useCallback, lazy, Suspense } from 'react'
 import './App.css'
 import { version } from '../package.json'
 import { fetchWeatherData, searchCity, buildHourly, buildDaily, buildAlerts } from './lib/weather'
@@ -15,11 +15,14 @@ import SearchBar from './components/SearchBar'
 import CurrentWeather from './components/CurrentWeather'
 import HourlyForecast from './components/HourlyForecast'
 import DailyForecast from './components/DailyForecast'
-import WeatherChart from './components/WeatherChart'
 import WeatherAlerts from './components/WeatherAlerts'
 import ThemeToggle from './components/ThemeToggle'
 import Favorites from './components/Favorites'
 import History from './components/History'
+
+// El gráfico se carga de forma diferida para no incluir recharts en el
+// bundle inicial de la página.
+const WeatherChart = lazy(() => import('./components/WeatherChart'))
 
 // Coordenadas por defecto usadas cuando falla la geolocalización.
 const DEFAULT_LAT = -33.4489
@@ -48,7 +51,7 @@ function App() {
   const loadWeatherRef = useRef(null)
   loadWeatherRef.current = loadWeather
 
-  async function loadWeather(city) {
+  const loadWeather = useCallback(async (city) => {
     setLoading(true)
     setError('')
     try {
@@ -65,7 +68,7 @@ function App() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [storage])
 
   useEffect(() => {
     if (geoLoaded.current) return
@@ -114,28 +117,33 @@ function App() {
     }
   }
 
-  function handleToggleFavorite() {
+  const handleToggleFavorite = useCallback(() => {
     if (!currentCity) return
     setFavorites(toggleFavorite(storage, currentCity))
-  }
+  }, [currentCity, storage])
 
-  function handleRemoveFavorite(id) {
-    setFavorites(favorites.filter((f) => f.id !== id))
-  }
+  const handleRemoveFavorite = useCallback(
+    (id) => {
+      setFavorites(favorites.filter((f) => f.id !== id))
+    },
+    [favorites],
+  )
 
-  function handleClearFavorites() {
+  const handleClearFavorites = useCallback(() => {
     setFavorites(clearFavorites(storage))
-  }
+  }, [storage])
 
-  function handleClearHistory() {
+  const handleClearHistory = useCallback(() => {
     setHistory(clearHistory(storage))
-  }
+  }, [storage])
 
   const current = weather?.current
   const daily = weather?.daily
-  const hourlyNow = buildHourly(weather?.hourly)
-  const dailyChart = buildDaily(weather?.daily)
-  const alerts = buildAlerts(weather?.hourly, weather?.daily)
+  // Los datos derivados se calculan una sola vez por carga de clima, evitando
+  // recomputaciones en cada render.
+  const hourlyNow = useMemo(() => buildHourly(weather?.hourly), [weather])
+  const dailyChart = useMemo(() => buildDaily(weather?.daily), [weather])
+  const alerts = useMemo(() => buildAlerts(weather?.hourly, weather?.daily), [weather])
   const isFavorite = favorites.some((f) => f.id === currentCity?.id)
 
   // Abre el modal de alertas cada vez que se cargan datos nuevos con alertas.
@@ -174,7 +182,9 @@ function App() {
           />
           {hourlyNow.length > 0 && <HourlyForecast hours={hourlyNow} />}
           {hourlyNow.length > 0 && dailyChart.length > 0 && (
-            <WeatherChart hourly={hourlyNow} daily={dailyChart} />
+            <Suspense fallback={null}>
+              <WeatherChart hourly={hourlyNow} daily={dailyChart} />
+            </Suspense>
           )}
           <DailyForecast daily={daily} />
         </div>

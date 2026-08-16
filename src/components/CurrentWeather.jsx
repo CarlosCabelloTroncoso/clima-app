@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { weatherInfo } from '../lib/weather'
 
 // Tarjeta con el estado del tiempo actual: temperatura, descripción y métricas.
@@ -33,4 +34,4 @@ function CurrentWeather({ location, current, isFavorite, onToggleFavorite }) {
   )
 }
 
-export default CurrentWeather
+export default memo(CurrentWeather)

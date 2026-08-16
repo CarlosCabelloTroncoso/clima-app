@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 // Barra de búsqueda de ciudad. Lleva el formulario y deshabilita el botón
 // mientras hay una petición en curso para evitar envíos duplicados.
 function SearchBar({ query, onQueryChange, onSubmit, loading }) {
@@ -17,4 +19,4 @@ function SearchBar({ query, onQueryChange, onSubmit, loading }) {
   )
 }
 
-export default SearchBar
+export default memo(SearchBar)
