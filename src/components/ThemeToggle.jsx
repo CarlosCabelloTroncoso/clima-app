@@ -9,7 +9,7 @@ function ThemeToggle({ theme, onThemeChange }) {
       onClick={() => onThemeChange(isDark ? 'light' : 'dark')}
       aria-label={isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
     >
-      {isDark ? '☀️ Claro' : '🌙 Oscuro'}
+      {isDark ? '🌙 Oscuro' : '☀️ Claro'}
     </button>
   )
 }
