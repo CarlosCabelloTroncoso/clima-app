@@ -2,8 +2,8 @@
   --bg: #eef2f7;
   --bg-grad-1: #e8edf5;
   --bg-grad-2: #dbe3ee;
-  --surface: #ffffff;
-  --surface-2: #f6f8fb;
+  --surface: rgba(255, 255, 255, 0.6);
+  --surface-2: rgba(246, 248, 251, 0.55);
   --border: #e3e8ef;
   --text: #1c2533;
   --muted: #64748b;
@@ -21,8 +21,8 @@
     --bg: #0b1220;
     --bg-grad-1: #0e1626;
     --bg-grad-2: #141d31;
-    --surface: #111a2e;
-    --surface-2: #172138;
+    --surface: rgba(17, 26, 46, 0.55);
+    --surface-2: rgba(23, 33, 56, 0.5);
     --border: #22304a;
     --text: #e6edf7;
     --muted: #94a3b8;
@@ -49,8 +49,8 @@
     --bg: #eef2f7;
     --bg-grad-1: #e8edf5;
     --bg-grad-2: #dbe3ee;
-    --surface: #ffffff;
-    --surface-2: #f6f8fb;
+    --surface: rgba(255, 255, 255, 0.6);
+    --surface-2: rgba(246, 248, 251, 0.55);
     --border: #e3e8ef;
     --text: #1c2533;
     --muted: #64748b;
@@ -67,8 +67,8 @@
   --bg: #0b1220;
   --bg-grad-1: #0e1626;
   --bg-grad-2: #141d31;
-  --surface: #111a2e;
-  --surface-2: #172138;
+  --surface: rgba(17, 26, 46, 0.55);
+  --surface-2: rgba(23, 33, 56, 0.5);
   --border: #22304a;
   --text: #e6edf7;
   --muted: #94a3b8;
@@ -211,6 +211,19 @@ body {
 
 .results > * {
   min-width: 0;
+}
+
+.card,
+.panel,
+.modal,
+.search input,
+.theme-toggle,
+.stat,
+.hour,
+.city-name,
+.chart-tabs button {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .card {
@@ -583,6 +596,35 @@ body {
 
 .fav.active {
   color: #f59e0b;
+}
+
+.weather-scene {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  background: linear-gradient(180deg, #7db9e8 0%, #bfe0f5 100%);
+}
+
+.weather-scene canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@media (prefers-color-scheme: dark) {
+  .weather-scene {
+    background: linear-gradient(180deg, #0b1220 0%, #1c2b47 100%);
+  }
+}
+
+:root.theme-light .weather-scene {
+  background: linear-gradient(180deg, #7db9e8 0%, #bfe0f5 100%);
+}
+
+:root.theme-dark .weather-scene {
+  background: linear-gradient(180deg, #0b1220 0%, #1c2b47 100%);
 }
 
 .card.chart {

@@ -20,9 +20,10 @@ import ThemeToggle from './components/ThemeToggle'
 import Favorites from './components/Favorites'
 import History from './components/History'
 
-// El gráfico se carga de forma diferida para no incluir recharts en el
-// bundle inicial de la página.
+// El gráfico y la escena 3D se cargan de forma diferida para no incluir
+// recharts ni three en el bundle inicial de la página.
 const WeatherChart = lazy(() => import('./components/WeatherChart'))
+const WeatherScene = lazy(() => import('./components/WeatherScene'))
 
 // Coordenadas por defecto usadas cuando falla la geolocalización.
 const DEFAULT_LAT = -33.4489
@@ -146,6 +147,7 @@ function App() {
   const dailyChart = useMemo(() => buildDaily(weather?.daily), [weather])
   const alerts = useMemo(() => buildAlerts(weather?.hourly, weather?.daily), [weather])
   const isFavorite = favorites.some((f) => f.id === currentCity?.id)
+  const isDark = theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
   // Abre el modal de alertas cada vez que se cargan datos nuevos con alertas.
   useEffect(() => {
@@ -154,6 +156,10 @@ function App() {
 
   return (
     <div className="container">
+      <Suspense fallback={null}>
+        <WeatherScene code={current?.weather_code ?? 0} isDark={isDark} />
+      </Suspense>
+
       <div className="header">
         <ThemeToggle theme={theme} onThemeChange={setTheme} />
         <h1>⛅ Mi Clima</h1>

@@ -130,11 +130,32 @@ function levelOrder(level) {
   return level === 'strong' ? 0 : level === 'moderate' ? 1 : 2
 }
 
+const SNOW_CODES = new Set([71, 73, 75, 77, 85, 86])
+const HEAVY_SNOW_CODES = new Set([75, 86])
+const RAIN_CODES = new Set([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82])
+const HEAVY_RAIN_CODES = new Set([55, 57, 65, 67, 82])
+const STORM_CODES = new Set([95, 96, 99])
+
+// Traduce un código WMO a los parámetros que necesita la escena 3D:
+// visibilidad del sol, cantidad de nubes, tipo de precipitación e intensidad.
+export function sceneConfig(code) {
+  if (STORM_CODES.has(code)) return { sun: 0, clouds: 1, precip: 'rain', heavy: true, storm: true }
+  if (SNOW_CODES.has(code)) {
+    return { sun: HEAVY_SNOW_CODES.has(code) ? 0 : 0.3, clouds: 1, precip: 'snow', heavy: HEAVY_SNOW_CODES.has(code) }
+  }
+  if (RAIN_CODES.has(code)) return { sun: 0, clouds: 1, precip: 'rain', heavy: HEAVY_RAIN_CODES.has(code) }
+  if (code === 45 || code === 48) return { sun: 0, clouds: 1, precip: null, heavy: false }
+  if (code === 3) return { sun: 0, clouds: 0.9, precip: null, heavy: false }
+  if (code === 2) return { sun: 0.7, clouds: 0.5, precip: null, heavy: false }
+  if (code === 1) return { sun: 1, clouds: 0.25, precip: null, heavy: false }
+  return { sun: 1, clouds: 0, precip: null, heavy: false }
+}
+
 // Solicita el pronóstico a Open-Meteo y devuelve la respuesta JSON.
 export async function fetchWeatherData(latitude, longitude) {
   const res = await fetch(
     `${FORECAST_URL}?latitude=${latitude}&longitude=${longitude}` +
-      `&current=temperature_2m,relative_humidity_2m,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min` +
+      `&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min` +
       `&hourly=temperature_2m,weather_code,precipitation_probability` +
       `&timezone=auto&forecast_days=7`,
   )

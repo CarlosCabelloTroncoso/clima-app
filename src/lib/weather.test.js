@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildHourly, buildAlerts, searchCity } from './weather'
+import { buildHourly, buildAlerts, searchCity, sceneConfig } from './weather'
 
 describe('buildHourly', () => {
   const hourly = {
@@ -118,5 +118,32 @@ describe('buildAlerts', () => {
     const daily = makeDaily([0, 61, 65], [today, day1, day2])
     const alerts = buildAlerts(null, daily)
     expect(alerts.filter((a) => a.tipo === 'daily')).toHaveLength(2)
+  })
+})
+
+describe('sceneConfig', () => {
+  it('cielo despejado muestra sol sin nubes ni precipitación', () => {
+    expect(sceneConfig(0)).toEqual({ sun: 1, clouds: 0, precip: null, heavy: false })
+  })
+
+  it('lluvia oculta el sol y activa precipitación', () => {
+    const config = sceneConfig(61)
+    expect(config.sun).toBe(0)
+    expect(config.precip).toBe('rain')
+    expect(config.heavy).toBe(false)
+  })
+
+  it('lluvia intensa marca heavy', () => {
+    expect(sceneConfig(65).heavy).toBe(true)
+  })
+
+  it('nieve activa precipitación de tipo snow', () => {
+    expect(sceneConfig(71).precip).toBe('snow')
+  })
+
+  it('tormenta marca storm y precipitación heavy', () => {
+    const config = sceneConfig(95)
+    expect(config.storm).toBe(true)
+    expect(config.heavy).toBe(true)
   })
 })
