@@ -150,6 +150,9 @@ function WeatherScene({ code, isDark }) {
         bobSpeed: 0.4 + Math.random() * 0.4,
         bobOffset: Math.random() * Math.PI * 2,
         baseY: y,
+        // Las nubes más cercanas (layer 0) reaccionan más al scroll que las
+        // del fondo (layer 2), simulando profundidad real.
+        parallax: 0.0026 - layer * 0.0008,
       })
     }
 
@@ -191,15 +194,17 @@ function WeatherScene({ code, isDark }) {
       sun.rotation.y += 0.0015
       glow.material.rotation += 0.0005
 
+      const scrollY = window.scrollY || document.documentElement.scrollTop || 0
+
       // Leve deriva de cámara: sensación de profundidad y vida en la escena.
       camera.position.x = Math.sin(elapsed * 0.12) * 0.6
-      camera.position.y = Math.cos(elapsed * 0.09) * 0.3
+      camera.position.y = Math.cos(elapsed * 0.09) * 0.3 + scrollY * 0.0015
       camera.lookAt(0, 1, 0)
 
-      clouds.forEach(({ group, speed, bobSpeed, bobOffset, baseY }) => {
+      clouds.forEach(({ group, speed, bobSpeed, bobOffset, baseY, parallax }) => {
         group.position.x += speed * 0.01
         if (group.position.x > 8) group.position.x = -8
-        group.position.y = baseY + Math.sin(elapsed * bobSpeed + bobOffset) * 0.15
+        group.position.y = baseY + Math.sin(elapsed * bobSpeed + bobOffset) * 0.15 + scrollY * parallax
         group.rotation.z = Math.sin(elapsed * 0.2 + bobOffset) * 0.03
       })
 

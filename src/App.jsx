@@ -23,7 +23,7 @@ import History from './components/History'
 // El gráfico y la escena 3D se cargan de forma diferida para no incluir
 // recharts ni three en el bundle inicial de la página.
 const WeatherChart = lazy(() => import('./components/WeatherChart'))
-const WeatherScene = lazy(() => import('./components/WeatherScene'))
+const WeatherSceneCrossfade = lazy(() => import('./components/WeatherSceneCrossfade'))
 
 // Coordenadas por defecto usadas cuando falla la geolocalización.
 const DEFAULT_LAT = -33.4489
@@ -157,7 +157,7 @@ function App() {
   return (
     <div className="container">
       <Suspense fallback={null}>
-        <WeatherScene code={current?.weather_code ?? 0} isDark={isDark} />
+        <WeatherSceneCrossfade code={current?.weather_code ?? 0} isDark={isDark} />
       </Suspense>
 
       <div className="header">
