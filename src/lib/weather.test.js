@@ -3,6 +3,7 @@ import {
   buildHourly,
   buildAlerts,
   searchCity,
+  searchCities,
   sceneConfig,
   convertTemp,
   formatTemp,
@@ -85,6 +86,27 @@ describe('searchCity', () => {
     const result = await searchCity('talca chile', fetchFn)
     expect(calls).toHaveLength(2)
     expect(result.name).toBe('Talca')
+  })
+})
+
+describe('searchCities', () => {
+  function fakeFetch(results) {
+    return async () => ({
+      ok: true,
+      json: async () => ({ results }),
+    })
+  }
+
+  it('devuelve hasta 5 coincidencias con Chile primero', async () => {
+    const cl = { name: 'Maule', country_code: 'CL', country: 'Chile' }
+    const fr = { name: 'Maule', country_code: 'FR', country: 'Francia' }
+    const results = await searchCities('maule', fakeFetch([fr, cl]))
+    expect(results.map((r) => r.country_code)).toEqual(['CL', 'FR'])
+  })
+
+  it('devuelve una lista vacía si no hay coincidencias', async () => {
+    const results = await searchCities('xyzxyz', fakeFetch([]))
+    expect(results).toEqual([])
   })
 })
 

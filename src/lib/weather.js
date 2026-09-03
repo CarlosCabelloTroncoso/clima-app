@@ -213,23 +213,30 @@ export function airQualityLevel(aqi) {
   return { level: 'extreme', label: 'Extrema' }
 }
 
-// Busca una ciudad por nombre. Prioriza resultados de Chile y, si la búsqueda
-// completa falla, reintenta solo con la primera palabra (p. ej. "talca chile").
-export async function searchCity(name, fetchFn = fetch) {
+// Busca ciudades por nombre y devuelve hasta 5 coincidencias, con los
+// resultados de Chile primero. Si la búsqueda completa no encuentra nada,
+// reintenta solo con la primera palabra (p. ej. "talca chile").
+export async function searchCities(name, fetchFn = fetch) {
   async function request(q) {
     const res = await fetchFn(`${GEO_URL}?name=${encodeURIComponent(q)}&count=5&language=es`)
     if (!res.ok) throw new Error('No se pudo buscar la ciudad.')
     const data = await res.json()
     const results = data.results || []
-    return results.find((r) => r.country_code === 'CL') || results[0]
+    return [...results].sort((a, b) => (b.country_code === 'CL') - (a.country_code === 'CL'))
   }
 
-  let result = await request(name)
-  if (!result) {
+  let results = await request(name)
+  if (results.length === 0) {
     const baseName = name.trim().split(/[,\s]+/)[0]
     if (baseName && baseName !== name.trim()) {
-      result = await request(baseName)
+      results = await request(baseName)
     }
   }
-  return result
+  return results
+}
+
+// Busca una ciudad por nombre y devuelve la mejor coincidencia (Chile primero).
+export async function searchCity(name, fetchFn = fetch) {
+  const results = await searchCities(name, fetchFn)
+  return results[0]
 }
