@@ -1,0 +1,19 @@
+{
+  "name": "Mi Clima",
+  "short_name": "Mi Clima",
+  "description": "Consulta el tiempo actual y el pronóstico por horas y por día de cualquier ciudad.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#eef2f7",
+  "theme_color": "#2563eb",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
