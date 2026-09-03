@@ -259,7 +259,7 @@ function App() {
 
       <div className="header">
         <div className="header-toggles">
-          <ThemeToggle theme={theme} onThemeChange={setTheme} />
+          <ThemeToggle isDark={isDark} onThemeChange={setTheme} />
           <UnitsToggle units={units} onUnitsChange={setUnits} />
           <LanguageToggle language={language} onLanguageChange={setLanguage} />
         </div>
