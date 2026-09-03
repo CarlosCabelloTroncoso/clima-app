@@ -21,6 +21,7 @@ import ThemeToggle from './components/ThemeToggle'
 import UnitsToggle from './components/UnitsToggle'
 import Favorites from './components/Favorites'
 import History from './components/History'
+import SceneErrorBoundary from './components/SceneErrorBoundary'
 
 // El gráfico y la escena 3D se cargan de forma diferida para no incluir
 // recharts ni three en el bundle inicial de la página.
@@ -162,6 +163,8 @@ function App() {
     setHistory(clearHistory(storage))
   }, [storage])
 
+  const handleCloseAlerts = useCallback(() => setShowAlerts(false), [])
+
   const current = weather?.current
   const daily = weather?.daily
   // Los datos derivados se calculan una sola vez por carga de clima, evitando
@@ -179,9 +182,11 @@ function App() {
 
   return (
     <div className="container">
-      <Suspense fallback={null}>
-        <WeatherSceneCrossfade code={current?.weather_code ?? 0} isDark={isDark} />
-      </Suspense>
+      <SceneErrorBoundary>
+        <Suspense fallback={null}>
+          <WeatherSceneCrossfade code={current?.weather_code ?? 0} isDark={isDark} />
+        </Suspense>
+      </SceneErrorBoundary>
 
       <div className="header">
         <div className="header-toggles">
@@ -245,9 +250,7 @@ function App() {
 
       <footer className="footer">Mi Clima · v{version}</footer>
 
-      {showAlerts && alerts.length > 0 && (
-        <WeatherAlerts alerts={alerts} onClose={() => setShowAlerts(false)} />
-      )}
+      {showAlerts && alerts.length > 0 && <WeatherAlerts alerts={alerts} onClose={handleCloseAlerts} />}
     </div>
   )
 }
