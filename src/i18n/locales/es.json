@@ -45,6 +45,9 @@
     "humidity": "humedad",
     "air": "aire"
   },
+  "share": {
+    "button": "Compartir el clima como imagen"
+  },
   "daily": {
     "today": "Hoy"
   },

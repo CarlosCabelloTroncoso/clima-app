@@ -2,10 +2,11 @@ import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { weatherInfo, formatTemp, formatWind, formatTime, airQualityLevel } from '../lib/weather'
 import { LOCALE_MAP } from '../i18n'
+import ShareSnapshot from './ShareSnapshot'
 
 // Tarjeta con el estado del tiempo actual: temperatura, descripción y métricas.
 // Incluye un botón para marcar o desmarcar la ciudad como favorita.
-function CurrentWeather({ location, current, daily, air, isFavorite, onToggleFavorite, units }) {
+function CurrentWeather({ location, current, daily, air, isFavorite, onToggleFavorite, units, isDark, sceneCanvasRef }) {
   const { t, i18n } = useTranslation()
   const locale = LOCALE_MAP[i18n.language] || LOCALE_MAP.es
   const info = weatherInfo(current.weather_code)
@@ -18,15 +19,18 @@ function CurrentWeather({ location, current, daily, air, isFavorite, onToggleFav
     <div className="card current">
       <div className="current-title">
         <h2>{location}</h2>
-        <button
-          type="button"
-          className={isFavorite ? 'fav active' : 'fav'}
-          onClick={onToggleFavorite}
-          aria-label={isFavorite ? t('current.removeFavorite') : t('current.addFavorite')}
-          aria-pressed={isFavorite}
-        >
-          ★
-        </button>
+        <div className="current-actions">
+          <ShareSnapshot canvasRef={sceneCanvasRef} current={current} location={location} units={units} isDark={isDark} />
+          <button
+            type="button"
+            className={isFavorite ? 'fav active' : 'fav'}
+            onClick={onToggleFavorite}
+            aria-label={isFavorite ? t('current.removeFavorite') : t('current.addFavorite')}
+            aria-pressed={isFavorite}
+          >
+            ★
+          </button>
+        </div>
       </div>
       <div className="big-emoji">{info.emoji}</div>
       <div className="temp">{formatTemp(current.temperature_2m, units)}</div>

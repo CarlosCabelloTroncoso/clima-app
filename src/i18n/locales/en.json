@@ -45,6 +45,9 @@
     "humidity": "humidity",
     "air": "air"
   },
+  "share": {
+    "button": "Share the weather as an image"
+  },
   "daily": {
     "today": "Today"
   },

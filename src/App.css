@@ -784,7 +784,14 @@ body {
   gap: 10px;
 }
 
-.fav {
+.current-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fav,
+.share-btn {
   border: none;
   background: transparent;
   font-size: 22px;
@@ -794,12 +801,19 @@ body {
   transition: color 0.15s, transform 0.15s;
 }
 
-.fav:hover {
+.fav:hover,
+.share-btn:hover:not(:disabled) {
   transform: scale(1.1);
+  color: var(--accent);
 }
 
 .fav.active {
   color: #f59e0b;
+}
+
+.share-btn:disabled {
+  cursor: default;
+  opacity: 0.6;
 }
 
 .weather-scene-stack {
