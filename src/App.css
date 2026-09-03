@@ -953,4 +953,14 @@ body {
     padding-right: 12px;
     padding-left: 12px;
   }
+
+  /* A ese ancho, los 3 botones absolutos (tema/unidades/idioma) se
+     superponen con el título centrado. Se pasan a flujo normal, centrados
+     arriba del título, en vez de flotar en la esquina. */
+  .header-toggles {
+    position: static;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
 }
