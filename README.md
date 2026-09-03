@@ -19,13 +19,18 @@ La app está publicada en producción en **Vercel**:
 - ⭐ Ciudades favoritas y historial de búsquedas recientes
 - 💾 Persistencia local de favoritos, historial y preferencias
 - 🌓 Modo oscuro y claro (manual o automático)
-- 🇪🇸 Interfaz y datos totalmente en español
+- 🌐 Interfaz en español o inglés (detecta el idioma del navegador, con selector manual)
+- 🌡️ Unidades métricas (°C, km/h) o imperiales (°F, mph)
+- 🍃 Calidad del aire (índice europeo EAQI)
+- 🔍 Autocompletado de ciudades al buscar
+- ⚖️ Comparar el clima entre dos ciudades
 
 ## Tecnologías
 
 - [React](https://react.dev) + [Vite](https://vite.dev)
-- [Open-Meteo](https://open-meteo.com) (geocodificación y pronóstico, sin API key)
+- [Open-Meteo](https://open-meteo.com) (geocodificación, pronóstico y calidad del aire, sin API key)
 - [Recharts](https://recharts.org) para gráficos
+- [i18next](https://www.i18next.com) + [react-i18next](https://react.i18next.com) para internacionalización
 - [Vitest](https://vitest.dev) para tests
 - [Oxlint](https://oxc.rs) para linting
 
