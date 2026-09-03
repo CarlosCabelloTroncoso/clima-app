@@ -116,10 +116,16 @@ body {
   display: none;
 }
 
-.theme-toggle {
+.header-toggles {
   position: absolute;
   top: 0;
   right: 0;
+  display: flex;
+  gap: 8px;
+}
+
+.theme-toggle,
+.units-toggle {
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);
@@ -132,7 +138,8 @@ body {
   transition: border-color 0.15s, color 0.15s;
 }
 
-.theme-toggle:hover {
+.theme-toggle:hover,
+.units-toggle:hover {
   border-color: var(--accent);
   color: var(--accent);
 }
@@ -266,7 +273,24 @@ body {
 .current .condition {
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 20px;
+  margin-bottom: 4px;
+}
+
+.feels-like {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.geo-hint {
+  max-width: 520px;
+  margin: -12px auto 20px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 13px;
+  text-align: center;
 }
 
 .current .stats {
@@ -292,6 +316,21 @@ body {
 .stat strong {
   color: var(--text);
   font-weight: 600;
+}
+
+.stat.aqi-good strong,
+.stat.aqi-fair strong {
+  color: #16a34a;
+}
+
+.stat.aqi-moderate strong {
+  color: #d97706;
+}
+
+.stat.aqi-poor strong,
+.stat.aqi-very-poor strong,
+.stat.aqi-extreme strong {
+  color: var(--danger);
 }
 
 .forecast {

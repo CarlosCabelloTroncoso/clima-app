@@ -1,16 +1,21 @@
 import { useState } from 'react'
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts'
+import { convertTemp } from '../lib/weather'
 
 // Gráficos de temperatura. Permite alternar entre las próximas 24 horas y los 7 días.
-function WeatherChart({ hourly, daily }) {
+function WeatherChart({ hourly, daily, units }) {
   const [range, setRange] = useState('hourly')
 
   const hourlyData = hourly.map((h) => ({
     label: new Date(h.time).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-    temp: h.temp,
+    temp: convertTemp(h.temp, units),
   }))
 
-  const dailyData = daily.map((d) => ({ label: d.day, max: d.max, min: d.min }))
+  const dailyData = daily.map((d) => ({
+    label: d.day,
+    max: convertTemp(d.max, units),
+    min: convertTemp(d.min, units),
+  }))
 
   const data = range === 'hourly' ? hourlyData : dailyData
   const isHourly = range === 'hourly'

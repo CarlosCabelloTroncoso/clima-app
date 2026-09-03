@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useMemo, useCallback, lazy, Suspense } from 'react'
 import './App.css'
 import { version } from '../package.json'
-import { fetchWeatherData, searchCity, buildHourly, buildDaily, buildAlerts } from './lib/weather'
+import { fetchWeatherData, fetchAirQuality, searchCity, buildHourly, buildDaily, buildAlerts } from './lib/weather'
 import {
   readJSON,
   toggleFavorite,
@@ -11,12 +11,14 @@ import {
   STORAGE_KEYS,
 } from './lib/storage'
 import useTheme from './hooks/useTheme'
+import useUnits from './hooks/useUnits'
 import SearchBar from './components/SearchBar'
 import CurrentWeather from './components/CurrentWeather'
 import HourlyForecast from './components/HourlyForecast'
 import DailyForecast from './components/DailyForecast'
 import WeatherAlerts from './components/WeatherAlerts'
 import ThemeToggle from './components/ThemeToggle'
+import UnitsToggle from './components/UnitsToggle'
 import Favorites from './components/Favorites'
 import History from './components/History'
 
@@ -33,10 +35,12 @@ const DEFAULT_CITY = { id: 'santiago', name: 'Santiago, Chile', lat: DEFAULT_LAT
 function App() {
   const storage = window.localStorage
   const { theme, setTheme } = useTheme(storage)
+  const { units, setUnits } = useUnits(storage)
 
   const [query, setQuery] = useState('')
   const [location, setLocation] = useState(null)
   const [weather, setWeather] = useState(null)
+  const [air, setAir] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [currentCity, setCurrentCity] = useState(null)
@@ -44,6 +48,7 @@ function App() {
   const [favorites, setFavorites] = useState(() => readJSON(storage, STORAGE_KEYS.favorites, []))
   const [history, setHistory] = useState(() => readJSON(storage, STORAGE_KEYS.history, []))
   const [showAlerts, setShowAlerts] = useState(false)
+  const [geoDenied, setGeoDenied] = useState(false)
 
   // Evita que la geolocalización se dispare dos veces en modo desarrollo,
   // donde React StrictMode re-ejecuta los efectos de montaje.
@@ -57,10 +62,15 @@ function App() {
       setCurrentCity(city)
       setLocation(city.name)
       setWeather(data)
+      setAir(null)
       setHistory(addHistory(storage, city))
+      // La calidad del aire es un dato secundario: si falla, no debe romper
+      // el resto de la página ni bloquear la respuesta principal.
+      fetchAirQuality(city.lat, city.lon).then(setAir)
     } catch (err) {
       setError(err.message)
       setWeather(null)
+      setAir(null)
       setLocation(null)
       setCurrentCity(null)
     } finally {
@@ -88,7 +98,12 @@ function App() {
           lat: pos.coords.latitude,
           lon: pos.coords.longitude,
         }),
-      () => loadWeatherRef.current(DEFAULT_CITY),
+      (err) => {
+        if (err.code === err.PERMISSION_DENIED) {
+          setGeoDenied(true)
+        }
+        loadWeatherRef.current(DEFAULT_CITY)
+      },
     )
   }, [])
 
@@ -161,12 +176,22 @@ function App() {
       </Suspense>
 
       <div className="header">
-        <ThemeToggle theme={theme} onThemeChange={setTheme} />
+        <div className="header-toggles">
+          <ThemeToggle theme={theme} onThemeChange={setTheme} />
+          <UnitsToggle units={units} onUnitsChange={setUnits} />
+        </div>
         <h1>⛅ Mi Clima</h1>
         <p>Consulta el tiempo actual y el pronóstico para cualquier ciudad.</p>
       </div>
 
       <SearchBar query={query} onQueryChange={setQuery} onSubmit={handleSearch} loading={loading} />
+
+      {geoDenied && (
+        <p className="geo-hint">
+          📍 No pudimos usar tu ubicación porque el permiso fue denegado. Mostrando Santiago de Chile — busca tu
+          ciudad arriba.
+        </p>
+      )}
 
       <Favorites
         favorites={favorites}
@@ -184,16 +209,19 @@ function App() {
           <CurrentWeather
             location={location}
             current={current}
+            daily={daily}
+            air={air}
+            units={units}
             isFavorite={isFavorite}
             onToggleFavorite={handleToggleFavorite}
           />
-          {hourlyNow.length > 0 && <HourlyForecast hours={hourlyNow} />}
+          {hourlyNow.length > 0 && <HourlyForecast hours={hourlyNow} units={units} />}
           {hourlyNow.length > 0 && dailyChart.length > 0 && (
             <Suspense fallback={null}>
-              <WeatherChart hourly={hourlyNow} daily={dailyChart} />
+              <WeatherChart hourly={hourlyNow} daily={dailyChart} units={units} />
             </Suspense>
           )}
-          <DailyForecast daily={daily} />
+          <DailyForecast daily={daily} units={units} />
         </div>
       )}
 

@@ -1,8 +1,8 @@
 import { memo } from 'react'
-import { weatherInfo } from '../lib/weather'
+import { weatherInfo, convertTemp } from '../lib/weather'
 
 // Pronóstico por hora en fila horizontal con scroll.
-function HourlyForecast({ hours }) {
+function HourlyForecast({ hours, units }) {
   return (
     <div className="card hourly">
       <h3>Próximas 24 horas</h3>
@@ -18,7 +18,7 @@ function HourlyForecast({ hours }) {
                 })}
               </span>
               <span className="hour-emoji">{info.emoji}</span>
-              <span className="hour-temp">{h.temp}°</span>
+              <span className="hour-temp">{convertTemp(h.temp, units)}°</span>
               <span className="hour-rain">{h.rain > 0 ? `${h.rain}%` : ''}</span>
             </div>
           )

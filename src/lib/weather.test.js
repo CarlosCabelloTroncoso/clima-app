@@ -1,5 +1,15 @@
 import { describe, it, expect } from 'vitest'
-import { buildHourly, buildAlerts, searchCity, sceneConfig } from './weather'
+import {
+  buildHourly,
+  buildAlerts,
+  searchCity,
+  sceneConfig,
+  convertTemp,
+  formatTemp,
+  formatWind,
+  fetchAirQuality,
+  airQualityLevel,
+} from './weather'
 
 describe('buildHourly', () => {
   const hourly = {
@@ -118,6 +128,62 @@ describe('buildAlerts', () => {
     const daily = makeDaily([0, 61, 65], [today, day1, day2])
     const alerts = buildAlerts(null, daily)
     expect(alerts.filter((a) => a.tipo === 'daily')).toHaveLength(2)
+  })
+})
+
+describe('conversión de unidades', () => {
+  it('convertTemp devuelve celsius redondeado por defecto', () => {
+    expect(convertTemp(10.6)).toBe(11)
+  })
+
+  it('convertTemp convierte a fahrenheit', () => {
+    expect(convertTemp(0, 'imperial')).toBe(32)
+    expect(convertTemp(100, 'imperial')).toBe(212)
+  })
+
+  it('formatTemp agrega el sufijo correcto', () => {
+    expect(formatTemp(20, 'metric')).toBe('20°C')
+    expect(formatTemp(20, 'imperial')).toBe('68°F')
+  })
+
+  it('formatWind convierte km/h a mph', () => {
+    expect(formatWind(100, 'metric')).toBe('100 km/h')
+    expect(formatWind(100, 'imperial')).toBe('62 mph')
+  })
+})
+
+describe('fetchAirQuality', () => {
+  it('devuelve los datos actuales si la respuesta es correcta', async () => {
+    const fetchFn = async () => ({ ok: true, json: async () => ({ current: { european_aqi: 42 } }) })
+    const result = await fetchAirQuality(-33, -70, fetchFn)
+    expect(result).toEqual({ european_aqi: 42 })
+  })
+
+  it('devuelve null si la respuesta falla', async () => {
+    const fetchFn = async () => ({ ok: false })
+    expect(await fetchAirQuality(-33, -70, fetchFn)).toBeNull()
+  })
+
+  it('devuelve null si la petición lanza una excepción', async () => {
+    const fetchFn = async () => {
+      throw new Error('network error')
+    }
+    expect(await fetchAirQuality(-33, -70, fetchFn)).toBeNull()
+  })
+})
+
+describe('airQualityLevel', () => {
+  it('devuelve null si no hay dato', () => {
+    expect(airQualityLevel(null)).toBeNull()
+  })
+
+  it('clasifica los umbrales del EAQI', () => {
+    expect(airQualityLevel(10).level).toBe('good')
+    expect(airQualityLevel(30).level).toBe('fair')
+    expect(airQualityLevel(50).level).toBe('moderate')
+    expect(airQualityLevel(70).level).toBe('poor')
+    expect(airQualityLevel(90).level).toBe('very-poor')
+    expect(airQualityLevel(120).level).toBe('extreme')
   })
 })
 

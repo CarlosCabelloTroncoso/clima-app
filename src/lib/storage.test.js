@@ -6,6 +6,8 @@ import {
   clearHistory,
   readTheme,
   writeTheme,
+  readUnits,
+  writeUnits,
   STORAGE_KEYS,
 } from './storage'
 
@@ -111,5 +113,26 @@ describe('tema', () => {
   it('valida y descarta valores no permitidos', () => {
     storage.setItem(STORAGE_KEYS.theme, '"rojo"')
     expect(readTheme(storage)).toBe('auto')
+  })
+})
+
+describe('unidades', () => {
+  let storage
+  beforeEach(() => {
+    storage = createMemoryStorage()
+  })
+
+  it('por defecto devuelve "metric"', () => {
+    expect(readUnits(storage)).toBe('metric')
+  })
+
+  it('guarda y recupera el sistema de unidades seleccionado', () => {
+    writeUnits(storage, 'imperial')
+    expect(readUnits(storage)).toBe('imperial')
+  })
+
+  it('valida y descarta valores no permitidos', () => {
+    storage.setItem(STORAGE_KEYS.units, '"kelvin"')
+    expect(readUnits(storage)).toBe('metric')
   })
 })

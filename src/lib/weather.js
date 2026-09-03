@@ -1,6 +1,7 @@
 // Constantes de acceso a la API de Open-Meteo.
 export const GEO_URL = 'https://geocoding-api.open-meteo.com/v1/search'
 export const FORECAST_URL = 'https://api.open-meteo.com/v1/forecast'
+export const AIR_QUALITY_URL = 'https://air-quality-api.open-meteo.com/v1/air-quality'
 
 // Mapa de códigos WMO a descripción y emoji del estado del clima.
 const WEATHER_CODES = {
@@ -46,6 +47,27 @@ export function formatDate(iso) {
     day: 'numeric',
     month: 'long',
   })
+}
+
+// Convierte una temperatura en °C al sistema de unidades pedido, sin el sufijo de unidad.
+export function convertTemp(celsius, units = 'metric') {
+  return units === 'imperial' ? Math.round((celsius * 9) / 5 + 32) : Math.round(celsius)
+}
+
+// Convierte y formatea una temperatura en °C, incluyendo el sufijo de unidad (°C/°F).
+export function formatTemp(celsius, units = 'metric') {
+  return `${convertTemp(celsius, units)}°${units === 'imperial' ? 'F' : 'C'}`
+}
+
+// Convierte una velocidad de viento en km/h al sistema de unidades pedido y la formatea.
+export function formatWind(kmh, units = 'metric') {
+  if (units === 'imperial') return `${Math.round(kmh * 0.621371)} mph`
+  return `${Math.round(kmh)} km/h`
+}
+
+// Formatea una hora ISO como HH:MM en formato de 24 horas.
+export function formatTime(iso) {
+  return new Date(iso).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
 }
 
 // Construye la lista de las próximas N horas con temperatura, código y lluvia.
@@ -155,12 +177,40 @@ export function sceneConfig(code) {
 export async function fetchWeatherData(latitude, longitude) {
   const res = await fetch(
     `${FORECAST_URL}?latitude=${latitude}&longitude=${longitude}` +
-      `&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min` +
+      `&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code,apparent_temperature,surface_pressure` +
+      `&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max` +
       `&hourly=temperature_2m,weather_code,precipitation_probability` +
       `&timezone=auto&forecast_days=7`,
   )
   if (!res.ok) throw new Error('No se pudo obtener el clima.')
   return res.json()
+}
+
+// Solicita la calidad del aire a Open-Meteo. Devuelve null si falla, para no
+// romper el resto de la página por un servicio secundario.
+export async function fetchAirQuality(latitude, longitude, fetchFn = fetch) {
+  try {
+    const res = await fetchFn(
+      `${AIR_QUALITY_URL}?latitude=${latitude}&longitude=${longitude}` +
+        `&current=european_aqi,pm2_5,pm10&timezone=auto`,
+    )
+    if (!res.ok) return null
+    const data = await res.json()
+    return data.current || null
+  } catch {
+    return null
+  }
+}
+
+// Clasifica el índice europeo de calidad del aire (EAQI) en nivel y etiqueta.
+export function airQualityLevel(aqi) {
+  if (aqi == null) return null
+  if (aqi <= 20) return { level: 'good', label: 'Buena' }
+  if (aqi <= 40) return { level: 'fair', label: 'Aceptable' }
+  if (aqi <= 60) return { level: 'moderate', label: 'Moderada' }
+  if (aqi <= 80) return { level: 'poor', label: 'Mala' }
+  if (aqi <= 100) return { level: 'very-poor', label: 'Muy mala' }
+  return { level: 'extreme', label: 'Extrema' }
 }
 
 // Busca una ciudad por nombre. Prioriza resultados de Chile y, si la búsqueda

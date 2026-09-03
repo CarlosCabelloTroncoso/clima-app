@@ -3,6 +3,7 @@ export const STORAGE_KEYS = {
   favorites: 'weather-app:favorites',
   history: 'weather-app:history',
   theme: 'weather-app:theme',
+  units: 'weather-app:units',
 }
 
 const MAX_HISTORY = 8
@@ -67,4 +68,15 @@ export function readTheme(storage) {
 // Guarda el tema seleccionado.
 export function writeTheme(storage, theme) {
   writeJSON(storage, STORAGE_KEYS.theme, theme)
+}
+
+// Lee el sistema de unidades guardado, validando que sea uno de los permitidos.
+export function readUnits(storage) {
+  const units = readJSON(storage, STORAGE_KEYS.units, 'metric')
+  return ['metric', 'imperial'].includes(units) ? units : 'metric'
+}
+
+// Guarda el sistema de unidades seleccionado.
+export function writeUnits(storage, units) {
+  writeJSON(storage, STORAGE_KEYS.units, units)
 }
