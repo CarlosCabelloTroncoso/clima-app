@@ -529,6 +529,93 @@ body {
   color: var(--danger);
 }
 
+.card.compare {
+  padding: 20px;
+}
+
+.compare-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.compare-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.compare-header .clear {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 2px 4px;
+  text-decoration: underline;
+}
+
+.compare-header .clear:hover {
+  color: var(--danger);
+}
+
+.card.compare .search-wrap {
+  max-width: none;
+  margin: 0;
+}
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.compare-city {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 10px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  text-align: center;
+  min-width: 0;
+}
+
+.compare-city-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.compare-city-emoji {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.compare-city-temp {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.compare-city-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+@media (max-width: 480px) {
+  .compare-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;

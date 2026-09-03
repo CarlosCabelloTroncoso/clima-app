@@ -22,6 +22,7 @@ import UnitsToggle from './components/UnitsToggle'
 import Favorites from './components/Favorites'
 import History from './components/History'
 import SceneErrorBoundary from './components/SceneErrorBoundary'
+import CompareWeather from './components/CompareWeather'
 
 // El gráfico y la escena 3D se cargan de forma diferida para no incluir
 // recharts ni three en el bundle inicial de la página.
@@ -50,6 +51,10 @@ function App() {
   const [history, setHistory] = useState(() => readJSON(storage, STORAGE_KEYS.history, []))
   const [showAlerts, setShowAlerts] = useState(false)
   const [geoDenied, setGeoDenied] = useState(false)
+
+  const [compareCity, setCompareCity] = useState(null)
+  const [compareWeather, setCompareWeather] = useState(null)
+  const [compareLoading, setCompareLoading] = useState(false)
 
   // Evita que la geolocalización se dispare dos veces en modo desarrollo,
   // donde React StrictMode re-ejecuta los efectos de montaje.
@@ -143,6 +148,47 @@ function App() {
     [loadWeather],
   )
 
+  // Carga el clima de la ciudad de comparación. Es independiente de la ciudad
+  // principal: un error acá no debe interrumpir ni tocar la vista principal.
+  const loadCompare = useCallback(async (city) => {
+    setCompareLoading(true)
+    try {
+      const data = await fetchWeatherData(city.lat, city.lon)
+      setCompareCity(city)
+      setCompareWeather(data)
+    } catch {
+      // Silencioso: comparar es una función secundaria.
+    } finally {
+      setCompareLoading(false)
+    }
+  }, [])
+
+  const handleCompareSearch = useCallback(
+    async (query) => {
+      setCompareLoading(true)
+      try {
+        const result = await searchCity(query)
+        if (!result) return
+        await loadCompare({
+          id: String(result.id),
+          name: `${result.name}, ${result.country || ''}`,
+          lat: result.latitude,
+          lon: result.longitude,
+        })
+      } catch {
+        // Silencioso: comparar es una función secundaria.
+      } finally {
+        setCompareLoading(false)
+      }
+    },
+    [loadCompare],
+  )
+
+  const handleRemoveCompare = useCallback(() => {
+    setCompareCity(null)
+    setCompareWeather(null)
+  }, [])
+
   const handleToggleFavorite = useCallback(() => {
     if (!currentCity) return
     setFavorites(toggleFavorite(storage, currentCity))
@@ -233,6 +279,17 @@ function App() {
             units={units}
             isFavorite={isFavorite}
             onToggleFavorite={handleToggleFavorite}
+          />
+          <CompareWeather
+            primaryLocation={location}
+            primaryCurrent={current}
+            compareCity={compareCity}
+            compareCurrent={compareWeather?.current}
+            loading={compareLoading}
+            units={units}
+            onSearch={handleCompareSearch}
+            onSelectCity={loadCompare}
+            onRemove={handleRemoveCompare}
           />
           {hourlyNow.length > 0 && <HourlyForecast hours={hourlyNow} units={units} />}
           {hourlyNow.length > 0 && dailyChart.length > 0 && (
