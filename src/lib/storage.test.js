@@ -8,6 +8,8 @@ import {
   writeTheme,
   readUnits,
   writeUnits,
+  readLanguage,
+  writeLanguage,
   STORAGE_KEYS,
 } from './storage'
 
@@ -134,5 +136,26 @@ describe('unidades', () => {
   it('valida y descarta valores no permitidos', () => {
     storage.setItem(STORAGE_KEYS.units, '"kelvin"')
     expect(readUnits(storage)).toBe('metric')
+  })
+})
+
+describe('idioma', () => {
+  let storage
+  beforeEach(() => {
+    storage = createMemoryStorage()
+  })
+
+  it('devuelve null si no hay preferencia guardada', () => {
+    expect(readLanguage(storage)).toBeNull()
+  })
+
+  it('guarda y recupera el idioma seleccionado', () => {
+    writeLanguage(storage, 'en')
+    expect(readLanguage(storage)).toBe('en')
+  })
+
+  it('devuelve null para valores no soportados', () => {
+    storage.setItem(STORAGE_KEYS.language, '"fr"')
+    expect(readLanguage(storage)).toBeNull()
   })
 })

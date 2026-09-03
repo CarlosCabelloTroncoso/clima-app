@@ -10,6 +10,8 @@ import {
   formatWind,
   fetchAirQuality,
   airQualityLevel,
+  weatherInfo,
+  formatWeekday,
 } from './weather'
 
 describe('buildHourly', () => {
@@ -59,14 +61,14 @@ describe('searchCity', () => {
   it('prioriza un resultado de Chile cuando existe', async () => {
     const cl = { name: 'Maule', country_code: 'CL', country: 'Chile' }
     const fr = { name: 'Maule', country_code: 'FR', country: 'Francia' }
-    const result = await searchCity('maule', fakeFetch([fr, cl]))
+    const result = await searchCity('maule', 'es', fakeFetch([fr, cl]))
     expect(result.name).toBe('Maule')
     expect(result.country_code).toBe('CL')
   })
 
   it('cae al primer resultado si no hay coincidencias chilenas', async () => {
     const fr = { name: 'Maule', country_code: 'FR', country: 'Francia' }
-    const result = await searchCity('maule', fakeFetch([fr]))
+    const result = await searchCity('maule', 'es', fakeFetch([fr]))
     expect(result.country_code).toBe('FR')
   })
 
@@ -83,9 +85,19 @@ describe('searchCity', () => {
             : { results: [{ name: 'Talca', country_code: 'CL', country: 'Chile' }] },
       }
     }
-    const result = await searchCity('talca chile', fetchFn)
+    const result = await searchCity('talca chile', 'es', fetchFn)
     expect(calls).toHaveLength(2)
     expect(result.name).toBe('Talca')
+  })
+
+  it('usa el idioma pedido en el parámetro language de la API', async () => {
+    let requestedUrl
+    const fetchFn = async (url) => {
+      requestedUrl = url
+      return { ok: true, json: async () => ({ results: [] }) }
+    }
+    await searchCity('talca', 'en', fetchFn)
+    expect(requestedUrl).toContain('language=en')
   })
 })
 
@@ -100,12 +112,12 @@ describe('searchCities', () => {
   it('devuelve hasta 5 coincidencias con Chile primero', async () => {
     const cl = { name: 'Maule', country_code: 'CL', country: 'Chile' }
     const fr = { name: 'Maule', country_code: 'FR', country: 'Francia' }
-    const results = await searchCities('maule', fakeFetch([fr, cl]))
+    const results = await searchCities('maule', 'es', fakeFetch([fr, cl]))
     expect(results.map((r) => r.country_code)).toEqual(['CL', 'FR'])
   })
 
   it('devuelve una lista vacía si no hay coincidencias', async () => {
-    const results = await searchCities('xyzxyz', fakeFetch([]))
+    const results = await searchCities('xyzxyz', 'es', fakeFetch([]))
     expect(results).toEqual([])
   })
 })
@@ -143,13 +155,45 @@ describe('buildAlerts', () => {
     const daily = makeDaily([95], [day1])
     const alerts = buildAlerts(null, daily)
     expect(alerts[0].nivel).toBe('strong')
-    expect(alerts[0].texto).toContain('lluvia fuerte')
   })
 
   it('genera una alerta por cada día con lluvia', () => {
     const daily = makeDaily([0, 61, 65], [today, day1, day2])
     const alerts = buildAlerts(null, daily)
     expect(alerts.filter((a) => a.tipo === 'daily')).toHaveLength(2)
+  })
+
+  it('incluye el día formateado en el locale pedido para las alertas diarias', () => {
+    const daily = makeDaily([61], [day1])
+    const alertsEs = buildAlerts(null, daily, 'es-ES')
+    const alertsEn = buildAlerts(null, daily, 'en-US')
+    expect(alertsEs[0].dia).toBe(formatWeekday(day1, 'es-ES'))
+    expect(alertsEn[0].dia).toBe(formatWeekday(day1, 'en-US'))
+    expect(alertsEs[0].dia).not.toBe(alertsEn[0].dia)
+  })
+})
+
+describe('weatherInfo', () => {
+  it('devuelve emoji y clave de traducción para un código conocido', () => {
+    expect(weatherInfo(0)).toEqual({ emoji: '☀️', key: 'weather.0' })
+  })
+
+  it('devuelve un valor por defecto para un código desconocido', () => {
+    expect(weatherInfo(9999)).toEqual({ emoji: '🌡️', key: 'weather.unknown' })
+  })
+})
+
+describe('formatWeekday', () => {
+  it('usa español por defecto', () => {
+    expect(formatWeekday('2026-08-15T12:00:00')).toBe(
+      new Date('2026-08-15T12:00:00').toLocaleDateString('es-ES', { weekday: 'long' }),
+    )
+  })
+
+  it('devuelve un nombre distinto según el locale pedido', () => {
+    const es = formatWeekday('2026-08-15T12:00:00', 'es-ES')
+    const en = formatWeekday('2026-08-15T12:00:00', 'en-US')
+    expect(es).not.toBe(en)
   })
 })
 

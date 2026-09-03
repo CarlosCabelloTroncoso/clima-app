@@ -1,13 +1,17 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts'
-import { convertTemp } from '../lib/weather'
+import { convertTemp, formatTime } from '../lib/weather'
+import { LOCALE_MAP } from '../i18n'
 
 // Gráficos de temperatura. Permite alternar entre las próximas 24 horas y los 7 días.
 function WeatherChart({ hourly, daily, units }) {
+  const { t, i18n } = useTranslation()
+  const locale = LOCALE_MAP[i18n.language] || LOCALE_MAP.es
   const [range, setRange] = useState('hourly')
 
   const hourlyData = hourly.map((h) => ({
-    label: new Date(h.time).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+    label: formatTime(h.time, locale),
     temp: convertTemp(h.temp, units),
   }))
 
@@ -23,15 +27,15 @@ function WeatherChart({ hourly, daily, units }) {
   return (
     <div className="card chart">
       <div className="chart-header">
-        <h3>Temperatura</h3>
-        <div className="chart-tabs" role="group" aria-label="Rango del gráfico">
+        <h3>{t('chart.title')}</h3>
+        <div className="chart-tabs" role="group" aria-label={t('chart.rangeLabel')}>
           <button
             type="button"
             className={isHourly ? 'active' : ''}
             onClick={() => setRange('hourly')}
             aria-pressed={isHourly}
           >
-            24 horas
+            {t('chart.hourlyTab')}
           </button>
           <button
             type="button"
@@ -39,7 +43,7 @@ function WeatherChart({ hourly, daily, units }) {
             onClick={() => setRange('daily')}
             aria-pressed={!isHourly}
           >
-            7 días
+            {t('chart.dailyTab')}
           </button>
         </div>
       </div>
@@ -59,12 +63,19 @@ function WeatherChart({ hourly, daily, units }) {
               }}
             />
             {isHourly ? (
-              <Line type="monotone" dataKey="temp" name="Temperatura" stroke="var(--accent)" strokeWidth={2} dot={false} />
+              <Line
+                type="monotone"
+                dataKey="temp"
+                name={t('chart.series')}
+                stroke="var(--accent)"
+                strokeWidth={2}
+                dot={false}
+              />
             ) : (
               <>
                 <Legend />
-                <Line type="monotone" dataKey="max" name="Máx" stroke="var(--accent)" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="min" name="Mín" stroke="var(--accent-2)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="max" name={t('chart.max')} stroke="var(--accent)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="min" name={t('chart.min')} stroke="var(--accent-2)" strokeWidth={2} dot={false} />
               </>
             )}
           </LineChart>

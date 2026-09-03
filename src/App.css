@@ -125,7 +125,8 @@ body {
 }
 
 .theme-toggle,
-.units-toggle {
+.units-toggle,
+.language-toggle {
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);
@@ -139,7 +140,8 @@ body {
 }
 
 .theme-toggle:hover,
-.units-toggle:hover {
+.units-toggle:hover,
+.language-toggle:hover {
   border-color: var(--accent);
   color: var(--accent);
 }

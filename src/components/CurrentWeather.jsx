@@ -1,9 +1,13 @@
 import { memo } from 'react'
-import { weatherInfo, formatTemp, formatWind, airQualityLevel } from '../lib/weather'
+import { useTranslation } from 'react-i18next'
+import { weatherInfo, formatTemp, formatWind, formatTime, airQualityLevel } from '../lib/weather'
+import { LOCALE_MAP } from '../i18n'
 
 // Tarjeta con el estado del tiempo actual: temperatura, descripción y métricas.
 // Incluye un botón para marcar o desmarcar la ciudad como favorita.
 function CurrentWeather({ location, current, daily, air, isFavorite, onToggleFavorite, units }) {
+  const { t, i18n } = useTranslation()
+  const locale = LOCALE_MAP[i18n.language] || LOCALE_MAP.es
   const info = weatherInfo(current.weather_code)
   const uv = daily?.uv_index_max?.[0]
   const sunrise = daily?.sunrise?.[0]
@@ -18,7 +22,7 @@ function CurrentWeather({ location, current, daily, air, isFavorite, onToggleFav
           type="button"
           className={isFavorite ? 'fav active' : 'fav'}
           onClick={onToggleFavorite}
-          aria-label={isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+          aria-label={isFavorite ? t('current.removeFavorite') : t('current.addFavorite')}
           aria-pressed={isFavorite}
         >
           ★
@@ -26,16 +30,18 @@ function CurrentWeather({ location, current, daily, air, isFavorite, onToggleFav
       </div>
       <div className="big-emoji">{info.emoji}</div>
       <div className="temp">{formatTemp(current.temperature_2m, units)}</div>
-      <p className="condition">{info.label}</p>
+      <p className="condition">{t(info.key)}</p>
       {current.apparent_temperature != null && (
-        <p className="feels-like">Sensación térmica {formatTemp(current.apparent_temperature, units)}</p>
+        <p className="feels-like">
+          {t('current.feelsLike', { temp: formatTemp(current.apparent_temperature, units) })}
+        </p>
       )}
       <div className="stats">
         <span className="stat">
           💨 <strong>{formatWind(current.wind_speed_10m, units)}</strong>
         </span>
         <span className="stat">
-          💧 <strong>{current.relative_humidity_2m}%</strong> humedad
+          💧 <strong>{current.relative_humidity_2m}%</strong> {t('current.humidity')}
         </span>
         {current.surface_pressure != null && (
           <span className="stat">
@@ -49,17 +55,17 @@ function CurrentWeather({ location, current, daily, air, isFavorite, onToggleFav
         )}
         {sunrise && (
           <span className="stat">
-            🌅 <strong>{new Date(sunrise).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</strong>
+            🌅 <strong>{formatTime(sunrise, locale)}</strong>
           </span>
         )}
         {sunset && (
           <span className="stat">
-            🌇 <strong>{new Date(sunset).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</strong>
+            🌇 <strong>{formatTime(sunset, locale)}</strong>
           </span>
         )}
         {aqi && (
           <span className={`stat aqi-${aqi.level}`}>
-            🍃 <strong>{aqi.label}</strong> aire
+            🍃 <strong>{t(`aqi.${aqi.level}`)}</strong> {t('current.air')}
           </span>
         )}
       </div>

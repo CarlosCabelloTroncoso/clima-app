@@ -4,6 +4,7 @@ export const STORAGE_KEYS = {
   history: 'weather-app:history',
   theme: 'weather-app:theme',
   units: 'weather-app:units',
+  language: 'weather-app:language',
 }
 
 const MAX_HISTORY = 8
@@ -79,4 +80,17 @@ export function readUnits(storage) {
 // Guarda el sistema de unidades seleccionado.
 export function writeUnits(storage, units) {
   writeJSON(storage, STORAGE_KEYS.units, units)
+}
+
+// Lee el idioma guardado, validando que sea uno de los soportados. Devuelve
+// null si no hay preferencia guardada (o es inválida), para que quien llame
+// decida el valor por defecto (p. ej. detectando el idioma del navegador).
+export function readLanguage(storage, supported = ['es', 'en']) {
+  const language = readJSON(storage, STORAGE_KEYS.language, null)
+  return supported.includes(language) ? language : null
+}
+
+// Guarda el idioma seleccionado.
+export function writeLanguage(storage, language) {
+  writeJSON(storage, STORAGE_KEYS.language, language)
 }

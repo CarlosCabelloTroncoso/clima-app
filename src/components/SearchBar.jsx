@@ -1,11 +1,13 @@
 import { memo, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { searchCities } from '../lib/weather'
 
 // Barra de búsqueda de ciudad con autocompletado. Lleva el formulario y
 // deshabilita el botón mientras hay una petición en curso para evitar envíos
 // duplicados. Sugiere ciudades mientras el usuario escribe, cancelando la
 // petición anterior en cada tecleo para no pisar resultados desactualizados.
-function SearchBar({ query, onQueryChange, onSubmit, onSelectCity, loading }) {
+function SearchBar({ query, onQueryChange, onSubmit, onSelectCity, loading, language = 'es' }) {
+  const { t } = useTranslation()
   const [suggestions, setSuggestions] = useState([])
   const [open, setOpen] = useState(false)
 
@@ -20,7 +22,7 @@ function SearchBar({ query, onQueryChange, onSubmit, onSelectCity, loading }) {
     const controller = new AbortController()
     const timeoutId = setTimeout(async () => {
       try {
-        const results = await searchCities(trimmed, (url) => fetch(url, { signal: controller.signal }))
+        const results = await searchCities(trimmed, language, (url) => fetch(url, { signal: controller.signal }))
         setSuggestions(results)
         setOpen(results.length > 0)
       } catch (err) {
@@ -32,7 +34,7 @@ function SearchBar({ query, onQueryChange, onSubmit, onSelectCity, loading }) {
       clearTimeout(timeoutId)
       controller.abort()
     }
-  }, [query])
+  }, [query, language])
 
   function handleSelect(result) {
     setOpen(false)
@@ -59,8 +61,8 @@ function SearchBar({ query, onQueryChange, onSubmit, onSelectCity, loading }) {
           onChange={(e) => onQueryChange(e.target.value)}
           onFocus={() => setOpen(suggestions.length > 0)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
-          placeholder="Buscar una ciudad..."
-          aria-label="Buscar una ciudad"
+          placeholder={t('search.placeholder')}
+          aria-label={t('search.ariaLabel')}
           autoComplete="off"
           role="combobox"
           aria-expanded={open}
@@ -68,7 +70,7 @@ function SearchBar({ query, onQueryChange, onSubmit, onSelectCity, loading }) {
           aria-controls="city-suggestions"
         />
         <button type="submit" disabled={loading}>
-          {loading ? 'Buscando...' : 'Buscar'}
+          {loading ? t('search.searching') : t('search.button')}
         </button>
       </form>
 

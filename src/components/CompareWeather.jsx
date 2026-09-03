@@ -1,4 +1,5 @@
 import { memo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { weatherInfo, formatTemp } from '../lib/weather'
 import SearchBar from './SearchBar'
 
@@ -20,7 +21,19 @@ function MiniCity({ name, current, units }) {
 // Permite buscar una segunda ciudad y ver su clima actual junto al de la
 // ciudad principal, lado a lado. La ciudad principal siempre es la que
 // controla el fondo 3D; comparar es solo una vista de datos.
-function CompareWeather({ primaryLocation, primaryCurrent, compareCity, compareCurrent, loading, units, onSearch, onSelectCity, onRemove }) {
+function CompareWeather({
+  primaryLocation,
+  primaryCurrent,
+  compareCity,
+  compareCurrent,
+  loading,
+  units,
+  language,
+  onSearch,
+  onSelectCity,
+  onRemove,
+}) {
+  const { t } = useTranslation()
   const [query, setQuery] = useState('')
 
   function handleSubmit(e) {
@@ -38,10 +51,10 @@ function CompareWeather({ primaryLocation, primaryCurrent, compareCity, compareC
   return (
     <div className="card compare">
       <div className="compare-header">
-        <h3>Comparar con otra ciudad</h3>
+        <h3>{t('compare.title')}</h3>
         {compareCity && (
           <button type="button" className="clear" onClick={onRemove}>
-            Quitar
+            {t('compare.remove')}
           </button>
         )}
       </div>
@@ -53,6 +66,7 @@ function CompareWeather({ primaryLocation, primaryCurrent, compareCity, compareC
           onSubmit={handleSubmit}
           onSelectCity={handleSelect}
           loading={loading}
+          language={language}
         />
       )}
 

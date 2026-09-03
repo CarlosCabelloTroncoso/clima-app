@@ -1,0 +1,127 @@
+{
+  "app": {
+    "name": "My Weather",
+    "subtitle": "Check the current weather and forecast for any city.",
+    "footer": "My Weather · v{{version}}"
+  },
+  "theme": {
+    "toDark": "Switch to dark theme",
+    "toLight": "Switch to light theme",
+    "dark": "🌙 Dark",
+    "light": "☀️ Light"
+  },
+  "units": {
+    "toMetric": "Switch to metric units",
+    "toImperial": "Switch to imperial units"
+  },
+  "language": {
+    "switchToEs": "Switch to Spanish",
+    "switchToEn": "Switch to English"
+  },
+  "search": {
+    "placeholder": "Search for a city...",
+    "ariaLabel": "Search for a city",
+    "button": "Search",
+    "searching": "Searching..."
+  },
+  "geo": {
+    "denied": "📍 We couldn't use your location because permission was denied. Showing Santiago, Chile — search for your city above.",
+    "currentLocation": "Your location"
+  },
+  "status": {
+    "loading": "Loading...",
+    "hint": "Type a city name to see its weather."
+  },
+  "errors": {
+    "cityNotFound": "No city found with that name.",
+    "forecastFailed": "Couldn't fetch the weather.",
+    "searchFailed": "Couldn't search for the city.",
+    "generic": "Something went wrong."
+  },
+  "current": {
+    "addFavorite": "Add to favorites",
+    "removeFavorite": "Remove from favorites",
+    "feelsLike": "Feels like {{temp}}",
+    "humidity": "humidity",
+    "air": "air"
+  },
+  "daily": {
+    "today": "Today"
+  },
+  "hourly": {
+    "title": "Next 24 hours"
+  },
+  "favorites": {
+    "title": "Favorites",
+    "clear": "Clear",
+    "remove": "Remove favorite"
+  },
+  "history": {
+    "title": "Recent",
+    "clear": "Clear"
+  },
+  "alerts": {
+    "title": "Weather alerts",
+    "close": "Close",
+    "hint": "Tap anywhere on the screen or press Escape to close",
+    "level": {
+      "light": "rain",
+      "moderate": "rain",
+      "strong": "heavy rain"
+    },
+    "hourly": "There's {{level}} expected in the next few hours today.",
+    "daily": "{{level}} expected on {{day}}."
+  },
+  "chart": {
+    "title": "Temperature",
+    "rangeLabel": "Chart range",
+    "hourlyTab": "24 hours",
+    "dailyTab": "7 days",
+    "max": "Max",
+    "min": "Min",
+    "series": "Temperature"
+  },
+  "compare": {
+    "title": "Compare with another city",
+    "remove": "Remove"
+  },
+  "aqi": {
+    "good": "Good",
+    "fair": "Fair",
+    "moderate": "Moderate",
+    "poor": "Poor",
+    "very-poor": "Very poor",
+    "extreme": "Extreme"
+  },
+  "weather": {
+    "0": "Clear sky",
+    "1": "Mainly clear",
+    "2": "Partly cloudy",
+    "3": "Overcast",
+    "45": "Fog",
+    "48": "Freezing fog",
+    "51": "Light drizzle",
+    "53": "Moderate drizzle",
+    "55": "Dense drizzle",
+    "56": "Light freezing drizzle",
+    "57": "Dense freezing drizzle",
+    "61": "Slight rain",
+    "63": "Moderate rain",
+    "65": "Heavy rain",
+    "66": "Light freezing rain",
+    "67": "Heavy freezing rain",
+    "71": "Slight snow fall",
+    "73": "Moderate snow fall",
+    "75": "Heavy snow fall",
+    "77": "Snow grains",
+    "80": "Slight rain showers",
+    "81": "Moderate rain showers",
+    "82": "Violent rain showers",
+    "85": "Slight snow showers",
+    "86": "Heavy snow showers",
+    "95": "Thunderstorm",
+    "96": "Thunderstorm with slight hail",
+    "99": "Thunderstorm with heavy hail",
+    "unknown": "Unknown"
+  }
+}

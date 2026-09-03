@@ -1,0 +1,127 @@
+{
+  "app": {
+    "name": "Mi Clima",
+    "subtitle": "Consulta el tiempo actual y el pronóstico para cualquier ciudad.",
+    "footer": "Mi Clima · v{{version}}"
+  },
+  "theme": {
+    "toDark": "Cambiar a tema oscuro",
+    "toLight": "Cambiar a tema claro",
+    "dark": "🌙 Oscuro",
+    "light": "☀️ Claro"
+  },
+  "units": {
+    "toMetric": "Cambiar a unidades métricas",
+    "toImperial": "Cambiar a unidades imperiales"
+  },
+  "language": {
+    "switchToEs": "Cambiar a español",
+    "switchToEn": "Cambiar a inglés"
+  },
+  "search": {
+    "placeholder": "Buscar una ciudad...",
+    "ariaLabel": "Buscar una ciudad",
+    "button": "Buscar",
+    "searching": "Buscando..."
+  },
+  "geo": {
+    "denied": "📍 No pudimos usar tu ubicación porque el permiso fue denegado. Mostrando Santiago de Chile — busca tu ciudad arriba.",
+    "currentLocation": "Tu ubicación"
+  },
+  "status": {
+    "loading": "Cargando...",
+    "hint": "Escribe el nombre de una ciudad para ver su clima."
+  },
+  "errors": {
+    "cityNotFound": "No se encontró ninguna ciudad con ese nombre.",
+    "forecastFailed": "No se pudo obtener el clima.",
+    "searchFailed": "No se pudo buscar la ciudad.",
+    "generic": "Ocurrió un error inesperado."
+  },
+  "current": {
+    "addFavorite": "Agregar a favoritos",
+    "removeFavorite": "Quitar de favoritos",
+    "feelsLike": "Sensación térmica {{temp}}",
+    "humidity": "humedad",
+    "air": "aire"
+  },
+  "daily": {
+    "today": "Hoy"
+  },
+  "hourly": {
+    "title": "Próximas 24 horas"
+  },
+  "favorites": {
+    "title": "Favoritos",
+    "clear": "Limpiar",
+    "remove": "Quitar favorito"
+  },
+  "history": {
+    "title": "Recientes",
+    "clear": "Limpiar"
+  },
+  "alerts": {
+    "title": "Alertas meteorológicas",
+    "close": "Cerrar",
+    "hint": "Toca cualquier parte de la pantalla o presiona Escape para cerrar",
+    "level": {
+      "light": "lluvia",
+      "moderate": "lluvia",
+      "strong": "lluvia fuerte"
+    },
+    "hourly": "Hoy hay {{level}} en las próximas horas.",
+    "daily": "{{level}} esperada el {{day}}."
+  },
+  "chart": {
+    "title": "Temperatura",
+    "rangeLabel": "Rango del gráfico",
+    "hourlyTab": "24 horas",
+    "dailyTab": "7 días",
+    "max": "Máx",
+    "min": "Mín",
+    "series": "Temperatura"
+  },
+  "compare": {
+    "title": "Comparar con otra ciudad",
+    "remove": "Quitar"
+  },
+  "aqi": {
+    "good": "Buena",
+    "fair": "Aceptable",
+    "moderate": "Moderada",
+    "poor": "Mala",
+    "very-poor": "Muy mala",
+    "extreme": "Extrema"
+  },
+  "weather": {
+    "0": "Cielo despejado",
+    "1": "Mayormente despejado",
+    "2": "Parcialmente nublado",
+    "3": "Nublado",
+    "45": "Niebla",
+    "48": "Niebla helada",
+    "51": "Llovizna ligera",
+    "53": "Llovizna moderada",
+    "55": "Llovizna intensa",
+    "56": "Llovizna helada ligera",
+    "57": "Llovizna helada intensa",
+    "61": "Lluvia ligera",
+    "63": "Lluvia moderada",
+    "65": "Lluvia intensa",
+    "66": "Lluvia helada ligera",
+    "67": "Lluvia helada intensa",
+    "71": "Nevada ligera",
+    "73": "Nevada moderada",
+    "75": "Nevada intensa",
+    "77": "Granos de nieve",
+    "80": "Chubascos ligeros",
+    "81": "Chubascos moderados",
+    "82": "Chubascos intensos",
+    "85": "Chubascos de nieve ligeros",
+    "86": "Chubascos de nieve intensos",
+    "95": "Tormenta",
+    "96": "Tormenta con granizo",
+    "99": "Tormenta con granizo intensa",
+    "unknown": "Desconocido"
+  }
+}

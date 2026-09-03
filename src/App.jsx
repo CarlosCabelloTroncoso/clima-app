@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useMemo, useCallback, lazy, Suspense } from 'react'
+import { useTranslation } from 'react-i18next'
 import './App.css'
 import { version } from '../package.json'
 import { fetchWeatherData, fetchAirQuality, searchCity, buildHourly, buildDaily, buildAlerts } from './lib/weather'
@@ -10,8 +11,10 @@ import {
   clearHistory,
   STORAGE_KEYS,
 } from './lib/storage'
+import { LOCALE_MAP } from './i18n'
 import useTheme from './hooks/useTheme'
 import useUnits from './hooks/useUnits'
+import useLanguage from './hooks/useLanguage'
 import SearchBar from './components/SearchBar'
 import CurrentWeather from './components/CurrentWeather'
 import HourlyForecast from './components/HourlyForecast'
@@ -19,6 +22,7 @@ import DailyForecast from './components/DailyForecast'
 import WeatherAlerts from './components/WeatherAlerts'
 import ThemeToggle from './components/ThemeToggle'
 import UnitsToggle from './components/UnitsToggle'
+import LanguageToggle from './components/LanguageToggle'
 import Favorites from './components/Favorites'
 import History from './components/History'
 import SceneErrorBoundary from './components/SceneErrorBoundary'
@@ -35,9 +39,12 @@ const DEFAULT_LON = -70.6693
 const DEFAULT_CITY = { id: 'santiago', name: 'Santiago, Chile', lat: DEFAULT_LAT, lon: DEFAULT_LON }
 
 function App() {
+  const { t } = useTranslation()
   const storage = window.localStorage
   const { theme, setTheme } = useTheme(storage)
   const { units, setUnits } = useUnits(storage)
+  const { language, setLanguage } = useLanguage(storage)
+  const locale = LOCALE_MAP[language] || LOCALE_MAP.es
 
   const [query, setQuery] = useState('')
   const [location, setLocation] = useState(null)
@@ -100,7 +107,7 @@ function App() {
       (pos) =>
         loadWeatherRef.current({
           id: 'current-location',
-          name: 'Tu ubicación',
+          name: t('geo.currentLocation'),
           lat: pos.coords.latitude,
           lon: pos.coords.longitude,
         }),
@@ -111,7 +118,7 @@ function App() {
         loadWeatherRef.current(DEFAULT_CITY)
       },
     )
-  }, [])
+  }, [t])
 
   async function handleSearch(e) {
     e.preventDefault()
@@ -119,9 +126,9 @@ function App() {
     setLoading(true)
     setError('')
     try {
-      const result = await searchCity(query)
+      const result = await searchCity(query, language)
       if (!result) {
-        throw new Error('No se encontró ninguna ciudad con ese nombre.')
+        throw new Error('errors.cityNotFound')
       }
       const city = {
         id: String(result.id),
@@ -167,7 +174,7 @@ function App() {
     async (query) => {
       setCompareLoading(true)
       try {
-        const result = await searchCity(query)
+        const result = await searchCity(query, language)
         if (!result) return
         await loadCompare({
           id: String(result.id),
@@ -181,7 +188,7 @@ function App() {
         setCompareLoading(false)
       }
     },
-    [loadCompare],
+    [loadCompare, language],
   )
 
   const handleRemoveCompare = useCallback(() => {
@@ -216,8 +223,14 @@ function App() {
   // Los datos derivados se calculan una sola vez por carga de clima, evitando
   // recomputaciones en cada render.
   const hourlyNow = useMemo(() => buildHourly(weather?.hourly), [weather])
-  const dailyChart = useMemo(() => buildDaily(weather?.daily), [weather])
-  const alerts = useMemo(() => buildAlerts(weather?.hourly, weather?.daily), [weather])
+  const dailyChart = useMemo(() => buildDaily(weather?.daily, locale), [weather, locale])
+  const alerts = useMemo(
+    () => buildAlerts(weather?.hourly, weather?.daily, locale),
+    [weather, locale],
+  )
+  // "Tu ubicación" se traduce en cada render en vez de guardarse en el estado,
+  // para que el título no quede congelado en el idioma con que se cargó.
+  const displayLocation = currentCity?.id === 'current-location' ? t('geo.currentLocation') : location
   const isFavorite = favorites.some((f) => f.id === currentCity?.id)
   const isDark = theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
@@ -238,9 +251,10 @@ function App() {
         <div className="header-toggles">
           <ThemeToggle theme={theme} onThemeChange={setTheme} />
           <UnitsToggle units={units} onUnitsChange={setUnits} />
+          <LanguageToggle language={language} onLanguageChange={setLanguage} />
         </div>
-        <h1>⛅ Mi Clima</h1>
-        <p>Consulta el tiempo actual y el pronóstico para cualquier ciudad.</p>
+        <h1>⛅ {t('app.name')}</h1>
+        <p>{t('app.subtitle')}</p>
       </div>
 
       <SearchBar
@@ -249,14 +263,10 @@ function App() {
         onSubmit={handleSearch}
         onSelectCity={handleSelectCity}
         loading={loading}
+        language={language}
       />
 
-      {geoDenied && (
-        <p className="geo-hint">
-          📍 No pudimos usar tu ubicación porque el permiso fue denegado. Mostrando Santiago de Chile — busca tu
-          ciudad arriba.
-        </p>
-      )}
+      {geoDenied && <p className="geo-hint">{t('geo.denied')}</p>}
 
       <Favorites
         favorites={favorites}
@@ -266,13 +276,13 @@ function App() {
       />
       <History history={history} onSelect={loadWeather} onClear={handleClearHistory} />
 
-      {error && <p className="error">{error}</p>}
-      {loading && <p className="loading">Cargando...</p>}
+      {error && <p className="error">{t(error, { defaultValue: t('errors.generic') })}</p>}
+      {loading && <p className="loading">{t('status.loading')}</p>}
 
       {current && daily && !loading && (
         <div className="results">
           <CurrentWeather
-            location={location}
+            location={displayLocation}
             current={current}
             daily={daily}
             air={air}
@@ -281,12 +291,13 @@ function App() {
             onToggleFavorite={handleToggleFavorite}
           />
           <CompareWeather
-            primaryLocation={location}
+            primaryLocation={displayLocation}
             primaryCurrent={current}
             compareCity={compareCity}
             compareCurrent={compareWeather?.current}
             loading={compareLoading}
             units={units}
+            language={language}
             onSearch={handleCompareSearch}
             onSelectCity={loadCompare}
             onRemove={handleRemoveCompare}
@@ -301,11 +312,9 @@ function App() {
         </div>
       )}
 
-      {!current && !loading && !error && (
-        <p className="hint">Escribe el nombre de una ciudad para ver su clima.</p>
-      )}
+      {!current && !loading && !error && <p className="hint">{t('status.hint')}</p>}
 
-      <footer className="footer">Mi Clima · v{version}</footer>
+      <footer className="footer">{t('app.footer', { version })}</footer>
 
       {showAlerts && alerts.length > 0 && <WeatherAlerts alerts={alerts} onClose={handleCloseAlerts} />}
     </div>

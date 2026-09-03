@@ -1,14 +1,16 @@
 import { memo } from 'react'
+import { useTranslation } from 'react-i18next'
 
 // Historial de ciudades consultadas recientemente, con opción de limpiarlo.
 function History({ history, onSelect, onClear }) {
+  const { t } = useTranslation()
   if (history.length === 0) return null
   return (
     <div className="panel">
       <div className="panel-header">
-        <h3>Recientes</h3>
+        <h3>{t('history.title')}</h3>
         <button type="button" className="clear" onClick={onClear}>
-          Limpiar
+          {t('history.clear')}
         </button>
       </div>
       <ul className="city-list">

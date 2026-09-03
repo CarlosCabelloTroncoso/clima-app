@@ -3,50 +3,50 @@ export const GEO_URL = 'https://geocoding-api.open-meteo.com/v1/search'
 export const FORECAST_URL = 'https://api.open-meteo.com/v1/forecast'
 export const AIR_QUALITY_URL = 'https://air-quality-api.open-meteo.com/v1/air-quality'
 
-// Mapa de códigos WMO a descripción y emoji del estado del clima.
-const WEATHER_CODES = {
-  0: { label: 'Cielo despejado', emoji: '☀️' },
-  1: { label: 'Mayormente despejado', emoji: '🌤️' },
-  2: { label: 'Parcialmente nublado', emoji: '⛅' },
-  3: { label: 'Nublado', emoji: '☁️' },
-  45: { label: 'Niebla', emoji: '🌫️' },
-  48: { label: 'Niebla helada', emoji: '🌫️' },
-  51: { label: 'Llovizna ligera', emoji: '🌦️' },
-  53: { label: 'Llovizna moderada', emoji: '🌦️' },
-  55: { label: 'Llovizna intensa', emoji: '🌧️' },
-  56: { label: 'Llovizna helada ligera', emoji: '🌧️' },
-  57: { label: 'Llovizna helada intensa', emoji: '🌧️' },
-  61: { label: 'Lluvia ligera', emoji: '🌧️' },
-  63: { label: 'Lluvia moderada', emoji: '🌧️' },
-  65: { label: 'Lluvia intensa', emoji: '🌧️' },
-  66: { label: 'Lluvia helada ligera', emoji: '🌧️' },
-  67: { label: 'Lluvia helada intensa', emoji: '🌧️' },
-  71: { label: 'Nevada ligera', emoji: '🌨️' },
-  73: { label: 'Nevada moderada', emoji: '🌨️' },
-  75: { label: 'Nevada intensa', emoji: '❄️' },
-  77: { label: 'Granos de nieve', emoji: '🌨️' },
-  80: { label: 'Chubascos ligeros', emoji: '🌧️' },
-  81: { label: 'Chubascos moderados', emoji: '🌧️' },
-  82: { label: 'Chubascos intensos', emoji: '⛈️' },
-  85: { label: 'Chubascos de nieve ligeros', emoji: '🌨️' },
-  86: { label: 'Chubascos de nieve intensos', emoji: '❄️' },
-  95: { label: 'Tormenta', emoji: '⛈️' },
-  96: { label: 'Tormenta con granizo', emoji: '⛈️' },
-  99: { label: 'Tormenta con granizo intensa', emoji: '⛈️' },
+// Mapa de códigos WMO a emoji del estado del clima. La descripción vive en
+// los archivos de idioma (clave `weather.<código>`), no acá: esta función se
+// mantiene independiente de i18n para poder testearla sin cargar traducciones.
+const WEATHER_EMOJI = {
+  0: '☀️',
+  1: '🌤️',
+  2: '⛅',
+  3: '☁️',
+  45: '🌫️',
+  48: '🌫️',
+  51: '🌦️',
+  53: '🌦️',
+  55: '🌧️',
+  56: '🌧️',
+  57: '🌧️',
+  61: '🌧️',
+  63: '🌧️',
+  65: '🌧️',
+  66: '🌧️',
+  67: '🌧️',
+  71: '🌨️',
+  73: '🌨️',
+  75: '❄️',
+  77: '🌨️',
+  80: '🌧️',
+  81: '🌧️',
+  82: '⛈️',
+  85: '🌨️',
+  86: '❄️',
+  95: '⛈️',
+  96: '⛈️',
+  99: '⛈️',
 }
 
-// Devuelve la descripción y emoji para un código WMO, con un valor por defecto.
+// Devuelve el emoji y la clave de traducción (`weather.<código>` o
+// `weather.unknown`) para un código WMO.
 export function weatherInfo(code) {
-  return WEATHER_CODES[code] || { label: 'Desconocido', emoji: '🌡️' }
+  if (code in WEATHER_EMOJI) return { emoji: WEATHER_EMOJI[code], key: `weather.${code}` }
+  return { emoji: '🌡️', key: 'weather.unknown' }
 }
 
-// Formatea una fecha ISO a formato largo en español (p. ej. "sábado 15 de agosto").
-export function formatDate(iso) {
-  return new Date(iso).toLocaleDateString('es-ES', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  })
+// Formatea una fecha ISO como nombre de día largo (p. ej. "sábado" / "Saturday").
+export function formatWeekday(iso, locale = 'es-ES') {
+  return new Date(iso).toLocaleDateString(locale, { weekday: 'long' })
 }
 
 // Convierte una temperatura en °C al sistema de unidades pedido, sin el sufijo de unidad.
@@ -65,9 +65,9 @@ export function formatWind(kmh, units = 'metric') {
   return `${Math.round(kmh)} km/h`
 }
 
-// Formatea una hora ISO como HH:MM en formato de 24 horas.
-export function formatTime(iso) {
-  return new Date(iso).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+// Formatea una hora ISO como HH:MM.
+export function formatTime(iso, locale = 'es-ES') {
+  return new Date(iso).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
 }
 
 // Construye la lista de las próximas N horas con temperatura, código y lluvia.
@@ -89,10 +89,10 @@ export function buildHourly(hourly, limit = 24, now = new Date()) {
 }
 
 // Construye la serie diaria para el gráfico de temperatura máxima/mínima.
-export function buildDaily(daily) {
+export function buildDaily(daily, locale = 'es-ES') {
   if (!daily) return []
   return daily.time.map((date, i) => ({
-    day: formatDate(date).split(',')[0],
+    day: formatWeekday(date, locale),
     max: Math.round(daily.temperature_2m_max[i]),
     min: Math.round(daily.temperature_2m_min[i]),
   }))
@@ -111,11 +111,11 @@ function rainLevel(code) {
 }
 
 // Genera las alertas meteorológicas a partir de los códigos de las próximas
-// horas y los próximos días. Devuelve un arreglo de { nivel, tipo, texto }.
-export function buildAlerts(hourly, daily) {
+// horas y los próximos días. Devuelve datos estructurados (nivel, tipo, día)
+// sin texto: el mensaje final se arma en el componente con i18n, según el
+// idioma activo.
+export function buildAlerts(hourly, daily, locale = 'es-ES') {
   const alerts = []
-  const levels = { light: 'lluvia', moderate: 'lluvia', strong: 'lluvia fuerte' }
-
   const today = new Date().toISOString().slice(0, 10)
 
   // Revisa las próximas 24 horas en busca de precipitación.
@@ -126,7 +126,7 @@ export function buildAlerts(hourly, daily) {
       if (date === today) codes.push(hourly.weather_code[i])
     }
     const level = codes.map(rainLevel).filter(Boolean).sort((a, b) => levelOrder(a) - levelOrder(b))[0]
-    if (level) alerts.push({ nivel: level, tipo: 'hourly', texto: `Hoy hay ${levels[level]} en las próximas horas.` })
+    if (level) alerts.push({ nivel: level, tipo: 'hourly' })
   }
 
   // Revisa los próximos días (excluye hoy) en busca de precipitación.
@@ -135,12 +135,7 @@ export function buildAlerts(hourly, daily) {
       if (daily.time[i] === today) continue
       const level = rainLevel(daily.weather_code[i])
       if (level) {
-        const day = formatDate(daily.time[i]).split(',')[0]
-        alerts.push({
-          nivel: level,
-          tipo: 'daily',
-          texto: `${levels[level]} esperada el ${day}.`,
-        })
+        alerts.push({ nivel: level, tipo: 'daily', dia: formatWeekday(daily.time[i], locale) })
       }
     }
   }
@@ -182,7 +177,7 @@ export async function fetchWeatherData(latitude, longitude) {
       `&hourly=temperature_2m,weather_code,precipitation_probability` +
       `&timezone=auto&forecast_days=7`,
   )
-  if (!res.ok) throw new Error('No se pudo obtener el clima.')
+  if (!res.ok) throw new Error('errors.forecastFailed')
   return res.json()
 }
 
@@ -202,24 +197,26 @@ export async function fetchAirQuality(latitude, longitude, fetchFn = fetch) {
   }
 }
 
-// Clasifica el índice europeo de calidad del aire (EAQI) en nivel y etiqueta.
+// Clasifica el índice europeo de calidad del aire (EAQI) en un nivel. La
+// etiqueta correspondiente vive en los archivos de idioma (clave `aqi.<nivel>`).
 export function airQualityLevel(aqi) {
   if (aqi == null) return null
-  if (aqi <= 20) return { level: 'good', label: 'Buena' }
-  if (aqi <= 40) return { level: 'fair', label: 'Aceptable' }
-  if (aqi <= 60) return { level: 'moderate', label: 'Moderada' }
-  if (aqi <= 80) return { level: 'poor', label: 'Mala' }
-  if (aqi <= 100) return { level: 'very-poor', label: 'Muy mala' }
-  return { level: 'extreme', label: 'Extrema' }
+  if (aqi <= 20) return { level: 'good' }
+  if (aqi <= 40) return { level: 'fair' }
+  if (aqi <= 60) return { level: 'moderate' }
+  if (aqi <= 80) return { level: 'poor' }
+  if (aqi <= 100) return { level: 'very-poor' }
+  return { level: 'extreme' }
 }
 
 // Busca ciudades por nombre y devuelve hasta 5 coincidencias, con los
 // resultados de Chile primero. Si la búsqueda completa no encuentra nada,
-// reintenta solo con la primera palabra (p. ej. "talca chile").
-export async function searchCities(name, fetchFn = fetch) {
+// reintenta solo con la primera palabra (p. ej. "talca chile"). `language`
+// es el código corto (es/en) que le pide a la API los nombres traducidos.
+export async function searchCities(name, language = 'es', fetchFn = fetch) {
   async function request(q) {
-    const res = await fetchFn(`${GEO_URL}?name=${encodeURIComponent(q)}&count=5&language=es`)
-    if (!res.ok) throw new Error('No se pudo buscar la ciudad.')
+    const res = await fetchFn(`${GEO_URL}?name=${encodeURIComponent(q)}&count=5&language=${language}`)
+    if (!res.ok) throw new Error('errors.searchFailed')
     const data = await res.json()
     const results = data.results || []
     return [...results].sort((a, b) => (b.country_code === 'CL') - (a.country_code === 'CL'))
@@ -236,7 +233,7 @@ export async function searchCities(name, fetchFn = fetch) {
 }
 
 // Busca una ciudad por nombre y devuelve la mejor coincidencia (Chile primero).
-export async function searchCity(name, fetchFn = fetch) {
-  const results = await searchCities(name, fetchFn)
+export async function searchCity(name, language = 'es', fetchFn = fetch) {
+  const results = await searchCities(name, language, fetchFn)
   return results[0]
 }
