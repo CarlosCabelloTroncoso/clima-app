@@ -16,6 +16,7 @@
     "react-dom": "^19.2.8",
     "react-i18next": "^17.0.13",
     "recharts": "^3.10.1",
+    "suncalc": "^2.0.2",
     "three": "^0.185.1"
   },
   "devDependencies": {

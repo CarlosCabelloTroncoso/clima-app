@@ -1,11 +1,16 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { sceneConfig } from '../lib/weather'
+import { sunPosition, moonPosition, moonIllumination, skyPosition } from '../lib/astronomy'
 
-// Fondo animado en 3D a pantalla completa: sol/luna con resplandor, nubes
-// volumétricas con parallax e iluminación real, estrellas de noche despejada
-// y partículas de lluvia o nieve según el código WMO. Se degrada en silencio
-// (no renderiza nada) si WebGL no está disponible.
+// Fondo animado en 3D a pantalla completa: sol y luna en su posición real
+// del cielo (azimut/altitud calculados para la fecha/hora y coordenadas de
+// la ciudad), con resplandor, nubes volumétricas con parallax e iluminación
+// real, estrellas cuando el sol real está bajo el horizonte, y partículas de
+// lluvia o nieve según el código WMO. Se degrada en silencio (no renderiza
+// nada) si WebGL no está disponible.
+
+const SKY_RADIUS = 6
 
 // Textura radial usada como resplandor detrás del sol/luna.
 function makeGlowTexture() {
@@ -23,7 +28,12 @@ function makeGlowTexture() {
   return new THREE.CanvasTexture(canvas)
 }
 
-function WeatherScene({ code, isDark }) {
+// `lat`/`lon` ubican el sol y la luna en su posición real del cielo.
+// `canvasRef`, si se pasa, recibe el canvas WebGL vigente (usado para la
+// captura de pantalla compartible) — se limpia solo si sigue siendo el
+// propio canvas al desmontar, para no pisar el de una capa más nueva
+// durante el crossfade entre escenas.
+function WeatherScene({ code, isDark, lat, lon, canvasRef }) {
   const mountRef = useRef(null)
 
   useEffect(() => {
@@ -36,7 +46,7 @@ function WeatherScene({ code, isDark }) {
 
     let renderer
     try {
-      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, preserveDrawingBuffer: true })
     } catch {
       return undefined
     }
@@ -50,37 +60,59 @@ function WeatherScene({ code, isDark }) {
     renderer.setSize(width, height)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
     mount.appendChild(renderer.domElement)
+    if (canvasRef) canvasRef.current = renderer.domElement
 
     const disposables = []
     const config = sceneConfig(code)
 
-    // Iluminación: ambiental suave + direccional desde el sol/luna, pra que
-    // las nubes tengan volumen real en vez de verse planas.
+    // Posición astronómica real del sol y la luna en este momento, para esta
+    // ciudad. Se calcula una sola vez por carga de escena (no se recalcula
+    // cuadro a cuadro): suficiente para reflejar la hora real del día sin
+    // complicar el loop de animación con astronomía en vivo.
+    const now = new Date()
+    const sunAstro = sunPosition(now, lat, lon)
+    const moonAstro = moonPosition(now, lat, lon)
+    const moonPhase = moonIllumination(now)
+    const sunVisible = sunAstro.altitude > -1
+    const moonVisible = moonAstro.altitude > -1
+    const isNight = sunAstro.altitude < -6
+
+    // Iluminación: ambiental suave + direccional desde la posición real del
+    // sol, pra que las nubes tengan volumen real en vez de verse planas.
     const ambient = new THREE.AmbientLight(isDark ? 0x334166 : 0xffffff, isDark ? 0.6 : 0.85)
     scene.add(ambient)
     const sunLight = new THREE.DirectionalLight(isDark ? 0x8fa5d9 : 0xfff3d6, config.sun > 0 ? 1.3 : 0.6)
-    sunLight.position.set(2.5, 2.2, 4)
+    // Solo sigue la posición astronómica real mientras el sol está sobre el
+    // horizonte: de noche no tiene sentido "iluminar desde donde está el
+    // sol" si el sol visible ya está oculto, así que vuelve a una posición
+    // fija razonable (la que tenía la escena antes de esto).
+    const sunLightPos = sunAstro.altitude > 0
+      ? skyPosition(sunAstro.azimuth, Math.max(sunAstro.altitude, 5), 10)
+      : { x: 2.5, y: 2.2, z: 4 }
+    sunLight.position.set(sunLightPos.x, sunLightPos.y, sunLightPos.z)
     scene.add(sunLight)
 
-    // Sol o luna con resplandor detrás.
+    // Sol: siempre color cálido, visible solo si está realmente sobre el
+    // horizonte en esta ciudad ahora mismo.
     const sunGeometry = new THREE.SphereGeometry(1.1, 32, 32)
     const sunMaterial = new THREE.MeshStandardMaterial({
-      color: isDark ? 0xe8edf5 : 0xffd166,
-      emissive: isDark ? 0x8a93a8 : 0xffb703,
+      color: 0xffd166,
+      emissive: 0xffb703,
       emissiveIntensity: 0.8,
       transparent: true,
       opacity: config.sun,
     })
     const sun = new THREE.Mesh(sunGeometry, sunMaterial)
-    sun.position.set(2.5, 2.2, -3)
-    sun.visible = config.sun > 0
+    const sunPos = skyPosition(sunAstro.azimuth, sunAstro.altitude, SKY_RADIUS, 3)
+    sun.position.set(sunPos.x, sunPos.y, sunPos.z)
+    sun.visible = sunVisible && config.sun > 0
     scene.add(sun)
     disposables.push(sunGeometry, sunMaterial)
 
     const glowTexture = makeGlowTexture()
     const glowMaterial = new THREE.SpriteMaterial({
       map: glowTexture,
-      color: isDark ? 0xaeb9d9 : 0xffe1a3,
+      color: 0xffe1a3,
       transparent: true,
       opacity: config.sun * 0.9,
       depthWrite: false,
@@ -88,13 +120,52 @@ function WeatherScene({ code, isDark }) {
     const glow = new THREE.Sprite(glowMaterial)
     glow.scale.set(5, 5, 1)
     glow.position.copy(sun.position)
-    glow.visible = config.sun > 0
+    glow.visible = sun.visible
     scene.add(glow)
     disposables.push(glowTexture, glowMaterial)
 
-    // Estrellas: solo de noche con cielo despejado.
+    // Luna: objeto independiente del sol, con su propia posición real y
+    // brillo proporcional a la fracción iluminada real (llena, creciente,
+    // nueva, etc.). Puede verse de día si está sobre el horizonte, igual
+    // que en el cielo real.
+    const moonGeometry = new THREE.SphereGeometry(0.75, 32, 32)
+    const moonMaterial = new THREE.MeshStandardMaterial({
+      color: 0xe8edf5,
+      emissive: 0x8a93a8,
+      // Con piso bajo (no 0): una luna nueva real es prácticamente invisible
+      // (es la cara no iluminada), así que la fracción tiene que poder
+      // llevar el brillo casi a cero, no solo atenuarlo a la mitad.
+      emissiveIntensity: 0.15 + moonPhase.fraction * 0.7,
+      transparent: true,
+      opacity: 0.15 + moonPhase.fraction * 0.8,
+    })
+    const moon = new THREE.Mesh(moonGeometry, moonMaterial)
+    const moonPos = skyPosition(moonAstro.azimuth, moonAstro.altitude, SKY_RADIUS, 3.4)
+    moon.position.set(moonPos.x, moonPos.y, moonPos.z)
+    // Bajo ~4% de iluminación (luna nueva) no se muestra: un disco gris
+    // tenue ahí se ve como un bug, no como astronomía real.
+    moon.visible = moonVisible && moonPhase.fraction > 0.04
+    scene.add(moon)
+    disposables.push(moonGeometry, moonMaterial)
+
+    const moonGlowMaterial = new THREE.SpriteMaterial({
+      map: glowTexture,
+      color: 0xaeb9d9,
+      transparent: true,
+      opacity: moonPhase.fraction * 0.6,
+      depthWrite: false,
+    })
+    const moonGlow = new THREE.Sprite(moonGlowMaterial)
+    moonGlow.scale.set(3.2, 3.2, 1)
+    moonGlow.position.copy(moon.position)
+    moonGlow.visible = moon.visible
+    scene.add(moonGlow)
+    disposables.push(moonGlowMaterial)
+
+    // Estrellas: solo cuando el sol real está bajo el horizonte en esta
+    // ciudad (crepúsculo astronómico) y el cielo está mayormente despejado.
     let stars = null
-    if (isDark && config.clouds < 0.4) {
+    if (isNight && config.clouds < 0.4) {
       const starCount = 200
       const starPositions = new Float32Array(starCount * 3)
       for (let i = 0; i < starCount; i += 1) {
@@ -193,6 +264,7 @@ function WeatherScene({ code, isDark }) {
 
       sun.rotation.y += 0.0015
       glow.material.rotation += 0.0005
+      moon.rotation.y += 0.0008
 
       const scrollY = window.scrollY || document.documentElement.scrollTop || 0
 
@@ -245,11 +317,12 @@ function WeatherScene({ code, isDark }) {
     return () => {
       if (frameId) cancelAnimationFrame(frameId)
       window.removeEventListener('resize', handleResize)
+      if (canvasRef && canvasRef.current === renderer.domElement) canvasRef.current = null
       disposables.forEach((d) => d.dispose())
       renderer.dispose()
       mount.removeChild(renderer.domElement)
     }
-  }, [code, isDark])
+  }, [code, isDark, lat, lon, canvasRef])
 
   return <div ref={mountRef} className="weather-scene" aria-hidden="true" />
 }

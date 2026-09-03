@@ -67,6 +67,10 @@ function App() {
   // donde React StrictMode re-ejecuta los efectos de montaje.
   const geoLoaded = useRef(false)
 
+  // Apunta siempre al canvas WebGL de la escena 3D vigente, para poder
+  // capturarlo en la foto compartible.
+  const sceneCanvasRef = useRef(null)
+
   const loadWeather = useCallback(async (city) => {
     setLoading(true)
     setError('')
@@ -243,7 +247,13 @@ function App() {
     <div className="container">
       <SceneErrorBoundary>
         <Suspense fallback={null}>
-          <WeatherSceneCrossfade code={current?.weather_code ?? 0} isDark={isDark} />
+          <WeatherSceneCrossfade
+            code={current?.weather_code ?? 0}
+            isDark={isDark}
+            lat={currentCity?.lat ?? DEFAULT_LAT}
+            lon={currentCity?.lon ?? DEFAULT_LON}
+            canvasRef={sceneCanvasRef}
+          />
         </Suspense>
       </SceneErrorBoundary>
 
@@ -289,6 +299,8 @@ function App() {
             units={units}
             isFavorite={isFavorite}
             onToggleFavorite={handleToggleFavorite}
+            isDark={isDark}
+            sceneCanvasRef={sceneCanvasRef}
           />
           <CompareWeather
             primaryLocation={displayLocation}
